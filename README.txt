@@ -1,0 +1,3 @@
+Project has been developed by students of Warsaw University of Technology - Mateusz Chiliñski and Marcin Kochanowski under supervision of PhD Krzysztof Kaczmarski. More information on usage soon to come. 
+Full scientific paper is available only in Polish(mostly because it is required by our faculty), though we plan to include English-based documentation on how to use our library to profile CUDA threads.
+License file will be uploaded soon and includes all realeased, since it is private repository, since the very begining. We need to consult our supervisor, as the University has some standards for that, though we plan to make it opensource.
