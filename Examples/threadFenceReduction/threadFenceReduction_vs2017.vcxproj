@@ -105,14 +105,8 @@
     <CudaCompile Include="threadFenceReduction.cu">
       <FileType>XSX</FileType>
     </CudaCompile>
-    <None Include="CudaThreadProfiler.cuh" />
     <ClInclude Include="threadFenceReduction.h" />
     <None Include="threadFenceReduction_kernel.cuh" />
-  </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="CudaThreadProfiler.cu">
-      <FileType>CppCode</FileType>
-    </CudaCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

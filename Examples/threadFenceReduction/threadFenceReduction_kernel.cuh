@@ -17,7 +17,7 @@
 #ifndef _REDUCE_KERNEL_H_
 #define _REDUCE_KERNEL_H_
 
-#include "CudaThreadProfiler.cuh"
+#include "../../Library/CudaThreadProfiler.cuh"
 
 namespace cg = cooperative_groups;
 
