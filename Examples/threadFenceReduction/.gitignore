@@ -1,7 +1,10 @@
 .vs/*
+bin/*
+x64/*
 *.i
 *.ii
 *.gpu
 *.ptx
 *.cubin
 *.fatbin
+*.csv
