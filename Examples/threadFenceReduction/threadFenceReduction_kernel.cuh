@@ -237,7 +237,7 @@ void reduce(int size, int threads, int blocks, float *d_idata, float *d_odata)
     dim3 dimGrid(blocks, 1, 1);
     int smemSize = (threads <= 32) ? 2 * threads * sizeof(float) : threads * sizeof(float);
 
-	CudaThreadProfiler::InitialiseKernelProfiling(threads*blocks);
+	CudaThreadProfiler::InitialiseKernelProfiling((threads*blocks)/32, 2);
     // choose which of the optimized versions of reduction to launch
     if (isPow2(size))
     {

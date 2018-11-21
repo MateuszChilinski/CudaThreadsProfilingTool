@@ -24,10 +24,10 @@ class CudaThreadProfiler
 	static ofstream outfile;
 	static timestamp* myTst;
 	static int warps;
+	static int registers;
 public:
-	static void RegisterLabel(string);
 	static void InitialiseProfiling();
-	static void InitialiseKernelProfiling(int);
+	static void InitialiseKernelProfiling(int, int);
 	static void SaveResults();
 };
 
@@ -35,11 +35,7 @@ timestamp* CudaThreadProfiler::myTst;
 ofstream CudaThreadProfiler::outfile;
 
 int CudaThreadProfiler::warps = 0;
-
-void CudaThreadProfiler::RegisterLabel(string newLabelName)
-{
-	//labels.push_back(newLabelName);
-}
+int CudaThreadProfiler::registers = 0;
 
 void CudaThreadProfiler::InitialiseProfiling()
 {
@@ -54,18 +50,19 @@ void CudaThreadProfiler::InitialiseProfiling()
 	std::string str(buffer);
 	outfile.open("prof"+ str +".csv", std::ios_base::app);
 }
-void CudaThreadProfiler::InitialiseKernelProfiling(int warps_number)
+void CudaThreadProfiler::InitialiseKernelProfiling(int warps_number, int registers_number = 1)
 {
 	warps = warps_number;
+	registers = registers_number;
 	checkCudaErrors(cudaFree(myTst));
-	checkCudaErrors(cudaMalloc((void **)&myTst, warps * sizeof(timestamp)));
+	checkCudaErrors(cudaMalloc((void **)&myTst, registers * warps * sizeof(timestamp)));
 	checkCudaErrors(cudaMemcpyToSymbol(tst, &myTst, sizeof(myTst)));
 }
 void CudaThreadProfiler::SaveResults()
 {
-	timestamp* host_tst = new timestamp[warps];
-	cudaMemcpy(host_tst, myTst, sizeof(timestamp) * warps, cudaMemcpyDeviceToHost);
-	for (int i = 0; i < warps; i++)
+	timestamp* host_tst = new timestamp[warps*registers];
+	cudaMemcpy(host_tst, myTst, sizeof(timestamp) * registers * warps, cudaMemcpyDeviceToHost);
+	for (int i = 0; i < warps*registers; i++)
 	{
 		timestamp tstmp = host_tst[i];
 		if (tstmp.tid == 0)
@@ -83,9 +80,13 @@ __device__ char * my_strcpy(char *dest, const char *src) {
 }
 __device__ void RegisterTimeMarker(char* string)
 {
-	if (threadIdx.x == 0)
+	const unsigned long long int blockId = blockIdx.x //1D
+		+ blockIdx.y * gridDim.x //2D
+		+ gridDim.x * gridDim.y * blockIdx.z; //3D
+	const unsigned long long int threadId = blockId * blockDim.x + threadIdx.x;
+	if (threadId % 32 == 0)
 	{
-		int idx = blockIdx.x;
+		int idx = threadId/32;
 		int mylocation = atomicAdd(&base, 1);
 		timestamp tsm;
 		tsm.tid = idx;

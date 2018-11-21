@@ -89,8 +89,6 @@ void reduceSinglePass(int size, int threads, int blocks, float *d_idata, float *
 int
 main(int argc, char **argv)
 {
-	CudaThreadProfiler::RegisterLabel("start");
-	CudaThreadProfiler::RegisterLabel("stop");
     cudaDeviceProp deviceProp;
     deviceProp.major = 0;
     deviceProp.minor = 0;
