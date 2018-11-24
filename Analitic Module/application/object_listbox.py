@@ -34,3 +34,6 @@ class ObjectListbox(Listbox):
         if current_selection:
             return self.elements[current_selection[0]]
         return None
+
+    def get_elements(self):
+        return self.elements
