@@ -12,7 +12,7 @@ class NumberEntry(Entry):
 
     def validate(self, action, index, value_if_allowed,
                  prior_value, text, validation_type, trigger_type, widget_name):
-        if(action == '1'):
+        if(action == '1'): #text was added
             if text in '0123456789.-+':
                 try:
                     float(value_if_allowed)

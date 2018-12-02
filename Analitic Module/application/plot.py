@@ -29,14 +29,13 @@ class Plot():
     def get_labels(self):
         return self.subplots.keys()
 
-    def get_label(self, index):
-        return self.subplots.keys()[index]
+    def set_title(self, value):
+        self.title = value
+        for label in self.scatters.keys():
+            self.update_label(label)
 
     def get_title(self):
         return self.title
-
-    def set_title(self, value):
-        self.title = value
 
     def change_hidden(self):
         self.hidden = self.hidden == False
@@ -44,14 +43,6 @@ class Plot():
             self.remove_plot()
         else:
             self.add_plot()
-
-    def get_max_timestamp(self):
-        max = 0
-        for label in self.subplots.keys():
-            value = self.subplots[label]['timestamp'].max()
-            if max < value:
-                max = value
-        return max
 
     def set_hidden(self, value):
         self.hidden = value
@@ -93,6 +84,12 @@ class Plot():
         label.set_color(color)
 
         self.scatters[label] = scatter
+
+    def update_label(self, label):
+        if not label.get_hidden():
+            self.scatters[label].set_color(label.get_color())
+            self.scatters[label].set_label(
+                "{} {}".format(self.title, label.get_title()))
 
     def convert_to_rgb(self, face_color):
         red = face_color[0]
