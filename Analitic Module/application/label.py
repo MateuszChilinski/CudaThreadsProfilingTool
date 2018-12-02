@@ -14,6 +14,12 @@ class Label():
     def change_hidden(self):
         self.hidden = self.hidden == False
 
+    def set_hiddent(self, value):
+        self.hidden = value
+
+    def get_hidden(self):
+        return self.hidden
+
     def set_color(self, color):
         self.color = color
 

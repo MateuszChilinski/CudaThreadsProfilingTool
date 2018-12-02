@@ -31,6 +31,11 @@ class Plot():
 
     def change_hidden(self):
         self.hidden = self.hidden == False
+        for label in self.get_labels():
+            label.set_hidden(False)
+
+    def set_hidden(self, value):
+        self.hidden = value
 
     def get_hidden(self):
         return self.hidden
