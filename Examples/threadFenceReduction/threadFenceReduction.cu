@@ -363,9 +363,9 @@ void shmoo(int minN, int maxN, int maxThreads, int maxBlocks)
 bool
 runTest(int argc, char **argv)
 {
-    int size = 1<<15;    // number of elements to reduce
-    int maxThreads = 128;  // number of threads per block
-    int maxBlocks = 64;
+    int size = 1<<26;    // number of elements to reduce
+    int maxThreads = 256;  // number of threads per block
+    int maxBlocks = 256;
     bool cpuFinalReduction = false;
     int cpuFinalThreshold = 1;
     bool multipass = false;

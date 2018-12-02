@@ -62,12 +62,17 @@ void CudaThreadProfiler::SaveResults()
 {
 	timestamp* host_tst = new timestamp[warps*registers];
 	cudaMemcpy(host_tst, myTst, sizeof(timestamp) * registers * warps, cudaMemcpyDeviceToHost);
+
+	int device = 0;
+	int clk = 1;
+	cudaError_t err = cudaDeviceGetAttribute(&clk, cudaDevAttrClockRate, device);
 	for (int i = 0; i < warps*registers; i++)
 	{
 		timestamp tstmp = host_tst[i];
 		if (tstmp.tid == 0)
 			continue;
-		outfile << tstmp.tid << "," << tstmp.time-host_tst[0].time+1000 << "," << tstmp.label <<"\n";
+		outfile << tstmp.tid << "," << tstmp.time/clk << "," << tstmp.label <<"\n";
+		//outfile << tstmp.tid << "," << tstmp.time / prop->clockRate << "," << tstmp.label << "\n";
 	}
 
 }
