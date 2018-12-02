@@ -2,8 +2,6 @@ class Label():
     def __init__(self, title, color=None):
         self.title = title
         self.hidden = False
-        if not color:
-            color = 'b'
         self.color = color
 
     def __str__(self):
@@ -14,7 +12,7 @@ class Label():
     def change_hidden(self):
         self.hidden = self.hidden == False
 
-    def set_hiddent(self, value):
+    def set_hidden(self, value):
         self.hidden = value
 
     def get_hidden(self):
@@ -25,3 +23,15 @@ class Label():
 
     def get_color(self):
         return self.color
+
+    def get_255_color(self):
+        red = int(self.color[0]*255)
+        green = int(self.color[1]*255)
+        blue = int(self.color[2]*255)
+        return (red, green, blue)
+
+    def set_title(self, title):
+        self.title = title
+
+    def get_title(self):
+        return self.title
