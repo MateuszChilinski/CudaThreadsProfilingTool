@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox, simpledialog
 from tkinter.colorchooser import *
 import pandas as pd
 import matplotlib
+import tkinter as tk
 matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
@@ -112,6 +113,20 @@ class PlotWindow(Frame):
             state=DISABLED)
         self.reset_range_button.pack(fill=X, padx=10, pady=1)
 
+        Label(right_panel, text="Set type of chart").pack()
+        
+        self.setChartType = tk.IntVar()
+        self.setChartType.set(1)
+
+        self.rad1 = Radiobutton(right_panel,text='Plot', value=1, variable=self.setChartType, command=self.chartTypeChange)
+        
+        self.rad2 = Radiobutton(right_panel,text='Histogram', value=2, variable=self.setChartType, command=self.chartTypeChange)
+        
+        #self.rad3 = Radiobutton(right_panel,text='Third', value=3)
+        
+        self.rad1.pack(fill=X, padx=10, pady=1)
+        self.rad2.pack(fill=X, padx=10, pady=1)
+
     ######################### PLOT REGION ######################################
 
     def change_plot_title(self, event):
@@ -149,11 +164,14 @@ class PlotWindow(Frame):
         if filepath:
             try:
                 new_plot = Plot(filepath, self.axis)
-                new_plot.add_plot()
                 self.plots_listbox.add_element(new_plot, True)
-                self.refresh_plot()
+                if self.setChartType.get() == 1:
+                    new_plot.create_plot()
+                elif self.setChartType.get() == 2:
+                    new_plot.create_histogram()
                 self.validate_range_button_state()
                 self.last_folder_selected, _ = os.path.split(filepath)
+                self.plot_selected(0)
             except:
                 messagebox.showerror(
                     title="Invalid file",
@@ -314,3 +332,12 @@ class PlotWindow(Frame):
             return float(value)
         except:
             return None
+##########
+    def chartTypeChange(self):
+        for plot in self.plots_listbox.get_elements():
+            if self.setChartType.get() == 1:
+                plot.create_plot(True)
+            elif self.setChartType.get() == 2:
+                plot.create_histogram(True)
+        self.refresh_plot()
+        self.plot_selected(0)
