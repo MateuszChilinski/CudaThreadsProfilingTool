@@ -532,7 +532,6 @@ PairVector GPUFindPairs(Sequence<K> * h_sequence)
 
 	for (int i = N - 1; i > 0; i -= seqPerCall)
 	{
-		CudaThreadProfiler::InitialiseKernelProfiling((threadsPerBlock*(i / threadsPerBlock))/32, 4);
 
 		if (i >= threadsPerBlock)
 		{
