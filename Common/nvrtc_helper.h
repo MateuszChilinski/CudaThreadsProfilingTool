@@ -30,7 +30,7 @@
 #define COMMON_NVRTC_HELPER_H_ 1
 
 #include <cuda.h>
-#include <helper_cuda_drvapi.h>
+#include "helper_cuda_drvapi.h"
 #include <nvrtc.h>
 #include <fstream>
 #include <iostream>

@@ -30,7 +30,7 @@
 #define COMMON_HELPER_IMAGE_H_
 
 #include <assert.h>
-#include <../../Common/exception.h>
+#include "exception.h"
 #include <math.h>
 #include <stdint.h>
 
@@ -51,7 +51,7 @@
 #define EXIT_WAIVED 2
 #endif
 
-#include <../../Common/helper_string.h>
+#include "helper_string.h"
 
 // namespace unnamed (internal)
 namespace helper_image_internal {

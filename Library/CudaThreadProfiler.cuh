@@ -3,8 +3,8 @@
 #include <vector>
 #include <cuda_runtime_api.h>
 #include <cooperative_groups.h>
-#include <../../Common/helper_functions.h>
-#include <../../Common/helper_cuda.h>
+#include "../Common/helper_functions.h"
+#include "../Common/helper_cuda.h"
 #include <time.h>
 #include <fstream>
 #include <math.h>
