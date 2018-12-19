@@ -149,7 +149,6 @@ class PlotWindow(Frame):
         if current_plot:
             self.labels_listbox.clear()
             self.labels_listbox.add_elements(current_plot.get_labels())
-            self.refresh_plot()
             self.delete_plot_button['state'] = NORMAL
             self.hide_plot_button['state'] = NORMAL
         else:
@@ -171,7 +170,7 @@ class PlotWindow(Frame):
                     new_plot.create_histogram()
                 self.validate_range_button_state()
                 self.last_folder_selected, _ = os.path.split(filepath)
-                self.plot_selected(0)
+                self.refresh_plot()
             except:
                 messagebox.showerror(
                     title="Invalid file",

@@ -1,14 +1,16 @@
-from tkinter import Entry
+from tkinter import Entry,Frame
 
 
-class NumberEntry(Entry):
+class NumberEntry(Frame):
     def __init__(self, master):
-        validate_cmd = (master.register(self.validate),
+        Frame.__init__(self, master)
+        validate_cmd = (self.register(self.validate),
                         '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
-        Entry.__init__(
-            self, master,
+        self.entry = Entry(
+            self,
             validate='key',
             validatecommand=validate_cmd)
+        self.entry.pack()
 
     def validate(self, action, index, value_if_allowed,
                  prior_value, text, validation_type, trigger_type, widget_name):

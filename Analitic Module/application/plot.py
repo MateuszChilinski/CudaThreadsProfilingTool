@@ -113,6 +113,7 @@ class Plot():
             scatter.remove()
         label.set_hidden(True)
         del self.scatters[label]
+        
     def ez_update_plot(self):
         for label in self.subplots.keys():
             if label in self.scatters:
@@ -123,6 +124,7 @@ class Plot():
                     scatter.remove()
                 del self.scatters[label]
                 self.ez_update_label(label)
+                
     def ez_update_label(self, label):
         data = self.subplots[label]          
         if self.type == 1:
