@@ -338,6 +338,7 @@ void reduceSinglePass(int size, int threads, int blocks, float *d_idata, float *
     dim3 dimBlock(threads, 1, 1);
     dim3 dimGrid(blocks, 1, 1);
     int smemSize = threads * sizeof(float);
+	CudaThreadProfiler::InitialiseKernelProfiling((threads*blocks) / 32, 2);
 
     // choose which of the optimized versions of reduction to launch
     if (isPow2(size))
@@ -430,6 +431,7 @@ void reduceSinglePass(int size, int threads, int blocks, float *d_idata, float *
                 break;
         }
     }
+	CudaThreadProfiler::SaveResults();
 }
 
 #endif // #ifndef _REDUCE_KERNEL_H_

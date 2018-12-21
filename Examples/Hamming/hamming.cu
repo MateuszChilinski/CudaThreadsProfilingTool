@@ -537,12 +537,16 @@ PairVector GPUFindPairs(Sequence<K> * h_sequence)
 		{
 			CudaThreadProfiler::InitialiseKernelProfiling((threadsPerBlock*(i / threadsPerBlock))/32, 4);
 			GPUHamming << < i / threadsPerBlock, threadsPerBlock >> > (d_idata, d_result.deviceArray, i, 0);
+			checkCudaErrors(cudaDeviceSynchronize());
+			checkCudaErrors(cudaPeekAtLastError());
 			CudaThreadProfiler::SaveResults();
 		}
 		if (i % threadsPerBlock > 0)
 		{
 			CudaThreadProfiler::InitialiseKernelProfiling((i % threadsPerBlock)/32, 4);
 			GPUHamming << < 1, i % threadsPerBlock >> > (d_idata, d_result.deviceArray, i, i - (i % threadsPerBlock));
+			checkCudaErrors(cudaDeviceSynchronize());
+			checkCudaErrors(cudaPeekAtLastError());
 			CudaThreadProfiler::SaveResults();
 		}
 	}

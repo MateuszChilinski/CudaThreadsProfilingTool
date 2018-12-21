@@ -98,7 +98,6 @@ __host__ void des_brute_force_gpu(char *key_alphabet, int key_length, char *mess
     cudaDeviceSynchronize();
 	CudaThreadProfiler::SaveResults();
   
-	CudaThreadProfiler::SaveResults();
     cudaEventCreate(&stop);
     cudaEventRecord(stop,0);
 
