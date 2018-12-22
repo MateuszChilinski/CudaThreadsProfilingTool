@@ -15,46 +15,39 @@
 using namespace std; 
 __global__ struct timestamp {
 	int tid;
-	long long int time;
-	char label[20];
+	int x;
+	int y;
+	int z;
+	unsigned long long int time;
+	char label;
 };
 
 __constant__ timestamp* tst;
 
-__device__ int base = 0;
+__device__ unsigned long long int base = 0;
 
-__device__ char * my_strcpy(char *dest, const char *src) {
-#if enableProfiler 1
-	int i = 0;
-	do {
-		dest[i] = src[i];
-	} while (src[i++] != 0);
-	return dest;
-#endif
-}
 __global__ void clearBase() {
 #if enableProfiler 1
 	base = 0;
 #endif
 }
-__device__ void RegisterTimeMarker(char* string)
+__device__ void RegisterTimeMarker(char label)
 {
 #if enableProfiler 1
 	const unsigned long long int blockId = blockIdx.x //1D
 		+ blockIdx.y * gridDim.x //2D
 		+ gridDim.x * gridDim.y * blockIdx.z; //3D
-	const unsigned long long int threadId = blockId * blockDim.x + threadIdx.x;
-	if (((threadId >> 5) << 5) == threadId) // check if divisible by 32 ( % 32 == 0)
-	{
-		int idx = threadId >> 5; // divide by 32
-		int mylocation = atomicAdd(&base, 1);
-		timestamp tsm;
-		tsm.tid = idx;
-		tsm.time = clock64();
-		my_strcpy(tsm.label, string);
-		tst[mylocation] = tsm;
+	int threadID = blockId + (threadIdx.x +
+		blockDim.x * threadIdx.y +
+		(blockDim.x * blockDim.y) * threadIdx.z);
+		int idx = threadID >> 5; // divide by 32
+		unsigned long long int mylocation = atomicAdd(&base, 1);
+		tst[mylocation].x = threadIdx.x + threadIdx.y * blockDim.x + threadIdx.z * blockDim.x * blockDim.y;
+		tst[mylocation].y = blockIdx.y * blockDim.y + threadIdx.y;
+		tst[mylocation].z = blockIdx.z * blockDim.z + threadIdx.z;
+		tst[mylocation].time = clock64();
+		tst[mylocation].label = label;
 		//printf("I am thread %d, my SM ID is %d, my warp ID is %d, and my warp lane is %d and the time is %lld\n", idx, __mysmid(), __mywarpid(), __mylaneid(), clock64());
-	}
 #endif
 	//printf("I am thread %d, my SM ID is %d, my warp ID is %d, and my warp lane is %d\n", idx, __mysmid(), __mywarpid(), __mylaneid());
 }
@@ -63,19 +56,28 @@ class CudaThreadProfiler
 {
 	static ofstream outfile;
 	static timestamp* myTst;
-	static int warps;
+	static int threads;
 	static int registers;
 public:
 	static void InitialiseProfiling();
-	static void InitialiseKernelProfiling(int, int);
+	static void InitialiseKernelProfiling(string, unsigned long long int, int);
+	static void CreateLabel(string, char);
 	static void SaveResults();
 };
 
 timestamp* CudaThreadProfiler::myTst;
 ofstream CudaThreadProfiler::outfile;
 
-int CudaThreadProfiler::warps = 0;
+int CudaThreadProfiler::threads = 0;
 int CudaThreadProfiler::registers = 0;
+string labels[256];
+
+void CudaThreadProfiler::CreateLabel(string label, char number)
+{
+#if enableProfiler 1
+	labels[number] = label;
+#endif
+}
 
 void CudaThreadProfiler::InitialiseProfiling()
 {
@@ -93,32 +95,30 @@ void CudaThreadProfiler::InitialiseProfiling()
 #endif
 }
 static int i = 0;
-void CudaThreadProfiler::InitialiseKernelProfiling(int warps_number, int registers_number = 1)
+void CudaThreadProfiler::InitialiseKernelProfiling(string kernel_name, unsigned long long int threads_number, int registers_number = 1)
 {
 #if enableProfiler 1
 	checkCudaErrors(cudaPeekAtLastError());
-	warps = warps_number;
+	threads = threads_number;
 	registers = registers_number;
-	checkCudaErrors(cudaMalloc((void **)&myTst, registers * warps * sizeof(timestamp)));
-	std::cout << i++ << "\n";
+	outfile << -1 << "," << -1 << "," << -1 << "," << -1 << "," << kernel_name << "\n";
+	checkCudaErrors(cudaMalloc((void **)&myTst, registers * threads * 32 * sizeof(timestamp)));
 	checkCudaErrors(cudaMemcpyToSymbol(tst, &myTst, sizeof(myTst)));
 #endif
 }
 void CudaThreadProfiler::SaveResults()
 {
 #if enableProfiler 1
-	timestamp* host_tst = new timestamp[warps*registers];
-	cudaMemcpy(host_tst, myTst, sizeof(timestamp) * registers * warps, cudaMemcpyDeviceToHost);
+	timestamp* host_tst = new timestamp[threads*registers];
+	cudaMemcpy(host_tst, myTst, sizeof(timestamp) * registers * threads, cudaMemcpyDeviceToHost);
 
 	int device = 0;
 	int clk = 1;
 	cudaError_t err = cudaDeviceGetAttribute(&clk, cudaDevAttrClockRate, device);
-	for (int i = 0; i < warps*registers; i++)
+	for (int i = 0; i < threads*registers; i++)
 	{
 		timestamp tstmp = host_tst[i];
-		if (tstmp.tid == 0)
-			continue;
-		outfile << tstmp.tid << "," << tstmp.time/clk << "," << tstmp.label <<"\n";
+		outfile << tstmp.x << "," << tstmp.y << "," << tstmp.z << "," << tstmp.time/clk << "," << labels[tstmp.label] <<"\n";
 		//outfile << tstmp.tid << "," << tstmp.time / prop->clockRate << "," << tstmp.label << "\n";
 	}
 	clearBase<<<1,1>>>();

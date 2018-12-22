@@ -371,7 +371,8 @@ runTest(int argc, char **argv)
     bool multipass = false;
     bool bTestResult = false;
 	CudaThreadProfiler::InitialiseProfiling();
-
+	CudaThreadProfiler::CreateLabel("start", 0);
+	CudaThreadProfiler::CreateLabel("end", 1);
 
     if (checkCmdLineFlag(argc, (const char **) argv, "n"))
     {
@@ -445,7 +446,7 @@ runTest(int argc, char **argv)
 
         // warm-up
         reduce(size, numThreads, numBlocks, d_idata, d_odata);
-        int testIterations = 100;
+        int testIterations = 5;
 
         StopWatchInterface *timer = 0;
         sdkCreateTimer(&timer);

@@ -24,11 +24,11 @@ __device__ void sleep(clock_value_t sleep_cycles)
 }
 __global__ void GPUDelays(long long int* global_now)
 {
-	RegisterTimeMarker("start"); 
+	RegisterTimeMarker(0); 
 	long long int start = clock64();
 	long long int now;
 	sleep(50000000);
-	RegisterTimeMarker("end");
+	RegisterTimeMarker(1);
 }
 int main()
 {
@@ -39,7 +39,9 @@ int main()
 	long long int *rd;
 	cudaMalloc((void **)&rd, sizeof(long long int));
 
-	CudaThreadProfiler::InitialiseKernelProfiling(100 * 100, 2);
+	CudaThreadProfiler::CreateLabel("start", 0);
+	CudaThreadProfiler::CreateLabel("end", 1);
+	CudaThreadProfiler::InitialiseKernelProfiling("delay_kernel", 100 * 100, 2);
 	GPUDelays << < 32, 512>> > (rd);
 	CudaThreadProfiler::SaveResults();
 

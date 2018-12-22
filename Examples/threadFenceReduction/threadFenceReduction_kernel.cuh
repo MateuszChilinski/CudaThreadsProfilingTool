@@ -76,7 +76,7 @@ template <unsigned int blockSize, bool nIsPow2>
 __device__ void
 reduceBlocks(const float *g_idata, float *g_odata, unsigned int n, cg::thread_block cta)
 {
-	RegisterTimeMarker("start");
+	RegisterTimeMarker(0);
     extern __shared__ float sdata[];
     // perform first level of reduction,
     // reading from global memory, writing to shared memory
@@ -104,7 +104,7 @@ reduceBlocks(const float *g_idata, float *g_odata, unsigned int n, cg::thread_bl
 
     // write result for this block to global mem
     if (tid == 0) g_odata[blockIdx.x] = sdata[0];
-	RegisterTimeMarker("end");
+	RegisterTimeMarker(1);
 }
 static __device__ __inline__ uint32_t __mysmid() {
 	uint32_t smid;
@@ -237,7 +237,7 @@ void reduce(int size, int threads, int blocks, float *d_idata, float *d_odata)
     dim3 dimGrid(blocks, 1, 1);
     int smemSize = (threads <= 32) ? 2 * threads * sizeof(float) : threads * sizeof(float);
 
-	CudaThreadProfiler::InitialiseKernelProfiling((threads*blocks)/32, 2);
+	CudaThreadProfiler::InitialiseKernelProfiling("kernelReduce", (threads*blocks), 2);
     // choose which of the optimized versions of reduction to launch
     if (isPow2(size))
     {
@@ -338,7 +338,7 @@ void reduceSinglePass(int size, int threads, int blocks, float *d_idata, float *
     dim3 dimBlock(threads, 1, 1);
     dim3 dimGrid(blocks, 1, 1);
     int smemSize = threads * sizeof(float);
-	CudaThreadProfiler::InitialiseKernelProfiling((threads*blocks) / 32, 2);
+	CudaThreadProfiler::InitialiseKernelProfiling("kernelReduceSinglePass", (threads*blocks), 2);
 
     // choose which of the optimized versions of reduction to launch
     if (isPow2(size))
