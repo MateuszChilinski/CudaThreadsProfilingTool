@@ -58,6 +58,10 @@ class CudaThreadProfiler
 	static timestamp* myTst;
 	static int threads;
 	static int registers;
+	static string kernelName;
+	static unsigned long long firstKernelStart;
+	static bool firstKernelStartCaught;
+	static int savedResultNumber;
 public:
 	static void InitialiseProfiling();
 	static void InitialiseKernelProfiling(string, unsigned long long int, int);
@@ -70,6 +74,10 @@ ofstream CudaThreadProfiler::outfile;
 
 int CudaThreadProfiler::threads = 0;
 int CudaThreadProfiler::registers = 0;
+string CudaThreadProfiler::kernelName;
+bool CudaThreadProfiler::firstKernelStartCaught;
+unsigned long long CudaThreadProfiler::firstKernelStart;
+int CudaThreadProfiler::savedResultNumber = 0;
 string labels[256];
 
 void CudaThreadProfiler::CreateLabel(string label, char number)
@@ -83,6 +91,7 @@ void CudaThreadProfiler::InitialiseProfiling()
 {
 #if enableProfiler 1
 	time_t rawtime;
+	firstKernelStartCaught = false;
 	struct tm * timeinfo;
 	char buffer[80];
 
@@ -92,6 +101,7 @@ void CudaThreadProfiler::InitialiseProfiling()
 	strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S", timeinfo);
 	std::string str(buffer);
 	outfile.open("prof"+ str +".csv", std::ios_base::app);
+	outfile << "x" << "," << "y" << "," << "z" << "," << "time" << "," << "label" << "\n";
 #endif
 }
 static int i = 0;
@@ -101,7 +111,7 @@ void CudaThreadProfiler::InitialiseKernelProfiling(string kernel_name, unsigned 
 	checkCudaErrors(cudaPeekAtLastError());
 	threads = threads_number;
 	registers = registers_number;
-	outfile << -1 << "," << -1 << "," << -1 << "," << -1 << "," << kernel_name << "\n";
+	kernelName = kernel_name;
 	checkCudaErrors(cudaMalloc((void **)&myTst, registers * threads * 32 * sizeof(timestamp)));
 	checkCudaErrors(cudaMemcpyToSymbol(tst, &myTst, sizeof(myTst)));
 #endif
@@ -115,12 +125,36 @@ void CudaThreadProfiler::SaveResults()
 	int device = 0;
 	int clk = 1;
 	cudaError_t err = cudaDeviceGetAttribute(&clk, cudaDevAttrClockRate, device);
+	unsigned long long int kernelStart = -1;
+	unsigned long long int kernelEnd = 0;
+	for (int i = 0; i < threads*registers; i++)
+	{
+		unsigned long long int time = host_tst[i].time/clk;
+		if (time > kernelEnd)
+			kernelEnd = time;
+		if (time < kernelStart)
+			kernelStart = time;
+	}
+	if(!firstKernelStartCaught)
+	{
+		firstKernelStartCaught = true;
+		firstKernelStart = kernelStart;
+	}
+	for (int i = 0; i < threads*registers; i++)
+	{
+		host_tst[i].time = host_tst[i].time/clk - firstKernelStart;
+	}
+	kernelStart -= firstKernelStart;
+	kernelEnd -= firstKernelStart;
+	outfile << -1 << "," << -1 << "," << -1 << "," << kernelStart << ",start_" << kernelName << "_" << savedResultNumber << "\n";
 	for (int i = 0; i < threads*registers; i++)
 	{
 		timestamp tstmp = host_tst[i];
-		outfile << tstmp.x << "," << tstmp.y << "," << tstmp.z << "," << tstmp.time/clk << "," << labels[tstmp.label] <<"\n";
+		outfile << tstmp.x << "," << tstmp.y << "," << tstmp.z << "," << tstmp.time << "," << kernelName << "_" << labels[tstmp.label] << "_" << savedResultNumber <<"\n";
 		//outfile << tstmp.tid << "," << tstmp.time / prop->clockRate << "," << tstmp.label << "\n";
 	}
+	outfile << -1 << "," << -1 << "," << -1 << "," << kernelEnd << ",end_" << kernelName << "_" << savedResultNumber << "\n";
+	savedResultNumber++;
 	clearBase<<<1,1>>>();
 	checkCudaErrors(cudaFree(myTst));
 #endif
