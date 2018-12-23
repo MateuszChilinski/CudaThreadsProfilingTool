@@ -16,29 +16,33 @@ import math
 import uuid
 
 
-def figure(df):
+def layout(df):
     df = df[df.x != -1]
-    figure = {
-        'data': [
-            go.Scatter3d(
-                x=df[df['label'] == i]['time'],
-                y=df[df['label'] == i]['x'],
-                z=df[df['label'] == i]['y'],
-                text=df[df['label'] == i]['y'],
-                mode='markers',
-                opacity=0.7,
-                marker={
-                    'size': 5
-                },
-                name=i
-            ) for i in df.label.unique()
-        ],
-        'layout': go.Layout(
-            xaxis={'title': 'Time'},
-            yaxis={'title': 'X-id'},
-            margin={'l': 40, 'b': 40, 't': 50, 'r': 10},
-            showlegend=True,
-            hovermode='closest'
-        )
-    }
-    return figure
+
+    layout = dcc.Graph(
+        id='main_graph',
+        style={"height": "78vh"},
+        figure={
+              'data': [
+                  go.Scatter3d(
+                      x=df[df['label'] == i]['time'],
+                      y=df[df['label'] == i]['x'],
+                      z=df[df['label'] == i]['y'],
+                      text=df[df['label'] == i]['y'],
+                      mode='markers',
+                      opacity=0.7,
+                      marker={
+                          'size': 5
+                      },
+                      name=i
+                  ) for i in df.label.unique()
+              ],
+              'layout': go.Layout(
+                  xaxis={'title': 'Time'},
+                  yaxis={'title': 'X-id'},
+                  margin={'l': 40, 'b': 40, 't': 50, 'r': 10},
+                  showlegend=True,
+                  hovermode='closest'
+              )
+              })
+    return layout

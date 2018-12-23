@@ -16,7 +16,7 @@ import math
 import uuid
 
 
-def figure(df):
+def layout(df):
     df_kernels = df[df.x == -1]
     df = df[df.x != -1]
     maxY = df['x'].max()*1.1
@@ -41,29 +41,33 @@ def figure(df):
             },
         })
 
-        figure = {
-            'data': [
-                go.Scattergl(
-                    x=df[df['label'] == i]['time'],
-                    y=df[df['label'] == i]['x'],
-                    text=df[df['label'] == i]['y'],
-                    mode='markers',
-                    opacity=0.7,
-                    marker={
-                        'size': 15,
-                         'line': {'width': 0.5, 'color': 'white'}
-                    },
-                    name=i
-                ) for i in df.label.unique()
-            ],
-            'layout': go.Layout(
-                xaxis={'title': 'Time'},
-                yaxis={'title': 'X-id'},
-                margin={'l': 40, 'b': 40, 't': 50, 'r': 10},
-                shapes=kernels,
-                showlegend=True,
-                hovermode='closest'
-            )
-        }
+        layout = dcc.Graph(
+            id='main_graph',
+            style={"height": "78vh"},
+            config={"scrollZoom": True},
+            figure={
+                'data': [
+                    go.Scattergl(
+                        x=df[df['label'] == i]['time'],
+                        y=df[df['label'] == i]['x'],
+                        text=df[df['label'] == i]['y'],
+                        mode='markers',
+                        opacity=0.7,
+                        marker={
+                            'size': 15,
+                            'line': {'width': 0.5, 'color': 'white'}
+                        },
+                        name=i
+                    ) for i in df.label.unique()
+                ],
+                'layout': go.Layout(
+                    xaxis={'title': 'Time'},
+                    yaxis={'title': 'X-id'},
+                    margin={'l': 40, 'b': 40, 't': 50, 'r': 10},
+                    shapes=kernels,
+                    showlegend=True,
+                    hovermode='closest'
+                )
+            })
 
-    return figure
+    return layout

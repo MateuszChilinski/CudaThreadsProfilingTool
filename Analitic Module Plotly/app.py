@@ -16,6 +16,8 @@ import math
 import base64
 import datetime
 import io
+import json
+
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -45,6 +47,10 @@ app.layout = html.Div([
         # Allow multiple files to be uploaded
         multiple=True
     ),
+
+    html.Div(id='original_data', style={"display": "none"}),
+
+
     # tabs
     html.Div([
 
@@ -52,9 +58,27 @@ app.layout = html.Div([
             id="tabs",
             style={"height": "20", "verticalAlign": "middle"},
             children=[
-                dcc.Tab(label="Main", value="main_tab"),
-                dcc.Tab(label="Main chart 3d", value="main3d_tab"),
-                dcc.Tab(label="Histogram", value="histogram_tab"),
+                dcc.Tab(
+                    label='Main',
+                    value="main_tab",
+                    children=[
+                        html.Div(children=[''], style={"width": "20px", "height": "20px"}), # a little hack to make label visible
+                        html.Div(id="main-graph")
+                    ]),
+                dcc.Tab(
+                    label="Main chart 3d",
+                    value="main3d_tab",
+                    children=[
+                        html.Div(children=[''], style={"width": "20px", "height": "20px"}),
+                        html.Div(id="main3d-graph")
+                    ]),
+                dcc.Tab(
+                    label="Histogram",
+                    value="histogram_tab",
+                    children=[
+                        html.Div(children=[''], style={"width": "20px", "height": "20px"}),
+                        html.Div(id="histogram-graph")
+                    ])
             ],
             value="main_tab",
         )
@@ -62,30 +86,6 @@ app.layout = html.Div([
     ],
         className="row tabs_div"
     ),
-
-
-    # divs that save dataframe for each tab
-    # html.Div(
-    #        sf_manager.get_opportunities().to_json(orient="split"),  # opportunities df
-    #        id="opportunities_df",
-    #        style={"display": "none"},
-    #    ),
-    # html.Div(sf_manager.get_leads().to_json(orient="split"), id="leads_df", style={"display": "none"}), # leads df
-    # html.Div(sf_manager.get_cases().to_json(orient="split"), id="cases_df", style={"display": "none"}), # cases df
-
-
-
-    # Tab content
-    html.Div(
-        id="tab_content",
-        className="row",
-        style={"margin": "2% 3%"},
-        children=[
-            dcc.Graph(
-                id='main_graph',
-                config={"scrollZoom": True}
-            )
-        ]),
 ])
 
 
@@ -93,37 +93,59 @@ def parse_contents(contents):
     _, content_string = contents.split(',')
 
     decoded = base64.b64decode(content_string)
-    try:
-        df = pd.read_csv(
-            io.StringIO(decoded.decode('utf-8')))
-    except Exception as e:
-        print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
+    df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
 
     return df
 
 
-@app.callback(Output("main_graph", "figure"), [Input("tabs", "value"), Input('upload-csv', 'contents')])
-def render_content(tab, list_of_contents):
-    children = []
-    if list_of_contents is not None:
-        children = [
-            parse_contents(c) for c in
-            list_of_contents]
-    if not children and not 'df' in vars():
-        return ""
-    elif children:
-        df = pd.concat(children)
-    if tab == "main_tab":
-        return main.figure(df)
-    elif tab == "main3d_tab":
-        return main3d.figure(df)
-    elif tab == "histogram_tab":
-        return histogram.figure(df)
-    else:
-        return main.figure(df)
+@app.callback(Output("original_data", "children"), [Input('upload-csv', 'contents')])
+def load_files(list_of_contents):
+    if not list_of_contents:
+        return None
+    try:
+        loaded = [parse_contents(c) for c in list_of_contents]
+        df = pd.concat(loaded)
+        return df.to_json()
+    except Exception as ex:
+        print(ex)
+        return "Error"
+
+
+@app.callback(Output("main-graph", "children"), [Input("original_data", "children")])
+def load_graph_for_main(data):
+    result, data = validate_graph_data(data)
+    if result:
+        return main.layout(data)
+    return data
+
+
+@app.callback(Output("main3d-graph", "children"), [Input("original_data", "children")])
+def load_graph_for_main3d(data):
+    result, data = validate_graph_data(data)
+    if result:
+        return main3d.layout(data)
+    return data
+
+
+@app.callback(Output("histogram-graph", "children"), [Input("original_data", "children")])
+def load_graph_for_histogram(data):
+    result, data = validate_graph_data(data)
+    if result:
+        return histogram.layout(data)
+    return data
+
+
+def validate_graph_data(data):
+    if not data:
+        return False, dcc.Graph()
+    try:
+        data = pd.read_json(data)
+        return True, data
+    except:
+        return False,  html.Div([
+            'There was an error processing this file.',
+            dcc.Graph()
+        ], style={"margin": "10px"})
 
 
 if __name__ == '__main__':

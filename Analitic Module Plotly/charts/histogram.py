@@ -17,7 +17,7 @@ import numpy as np
 import uuid
 
 
-def figure(df):
+def layout(df):
     df_kernels = df[df.x == -1]
     df = df[df.x != -1]
 
@@ -26,7 +26,8 @@ def figure(df):
     maxY = 0
     for i in grouped.label.unique():
         num = max((np.cumsum(grouped[grouped['label'] == i]['count']))[
-                  ::len(np.cumsum(grouped[grouped['label'] == i]['count']))-1])
+                  ::len(np.cumsum(grouped[grouped['label'] == i]['count']))])
+
         if(maxY < num):
             maxY = num
     maxY = maxY*1.1
@@ -52,7 +53,11 @@ def figure(df):
             },
         })
 
-        figure = {
+    layout = dcc.Graph(
+        id='main_graph',
+        style={"height": "78vh"},
+        config={"scrollZoom": True},
+        figure={
             'data': [
                 go.Scattergl(
                     x=grouped[grouped['label'] == i]['time'],
@@ -70,5 +75,6 @@ def figure(df):
                 showlegend=True,
                 hovermode='closest'
             )
-        }
-    return figure
+        })
+        
+    return layout
