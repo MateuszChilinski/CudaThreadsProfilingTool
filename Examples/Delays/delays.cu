@@ -16,6 +16,8 @@
 using namespace std;
 using clock_value_t = long long;
 
+
+
 __device__ void sleep(clock_value_t sleep_cycles)
 {
 	clock_value_t start = clock64();
