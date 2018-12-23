@@ -88,13 +88,13 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
 @app.callback(Output("tab_content", "children"), [Input("tabs", "value")])
 def render_content(tab):
     if tab == "main_tab":
-        return main.layout
+        return main.figure
     elif tab == "main3d_tab":
-        return main3d.layout
+        return main3d.figure
     elif tab == "histogram_tab":
-        return histogram.layout
+        return histogram.figure
     else:
-        return main.layout
+        return main.figure
 
 if __name__ == '__main__':
     app.run_server(debug=True)

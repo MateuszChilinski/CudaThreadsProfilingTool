@@ -22,10 +22,10 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 
 app.layout = html.Div([
-html.Div([
+    html.Div([
 
-            html.Span("CUDA Threads Profiling Tool Analitic Module v2", className='app-title')]),
-            
+        html.Span("CUDA Threads Profiling Tool Analitic Module v2", className='app-title')]),
+
     dcc.Upload(
         id='upload-csv',
         children=html.Div([
@@ -45,46 +45,56 @@ html.Div([
         # Allow multiple files to be uploaded
         multiple=True
     ),
-        # tabs
-        html.Div([
+    # tabs
+    html.Div([
 
-            dcc.Tabs(
-                id="tabs",
-                style={"height":"20","verticalAlign":"middle"},
-                children=[
-                    dcc.Tab(label="Main", value="main_tab"),
-                    dcc.Tab(label="Main chart 3d", value="main3d_tab"),
-                    dcc.Tab(label="Histogram", value="histogram_tab"),
-                ],
-                value="main_tab",
-            )
-
+        dcc.Tabs(
+            id="tabs",
+            style={"height": "20", "verticalAlign": "middle"},
+            children=[
+                dcc.Tab(label="Main", value="main_tab"),
+                dcc.Tab(label="Main chart 3d", value="main3d_tab"),
+                dcc.Tab(label="Histogram", value="histogram_tab"),
             ],
-            className="row tabs_div"
-            ),
-       
-                
-        # divs that save dataframe for each tab
-        #html.Div(
-        #        sf_manager.get_opportunities().to_json(orient="split"),  # opportunities df
-        #        id="opportunities_df",
-        #        style={"display": "none"},
-        #    ),
-        #html.Div(sf_manager.get_leads().to_json(orient="split"), id="leads_df", style={"display": "none"}), # leads df
-        #html.Div(sf_manager.get_cases().to_json(orient="split"), id="cases_df", style={"display": "none"}), # cases df
+            value="main_tab",
+        )
+
+    ],
+        className="row tabs_div"
+    ),
+
+
+    # divs that save dataframe for each tab
+    # html.Div(
+    #        sf_manager.get_opportunities().to_json(orient="split"),  # opportunities df
+    #        id="opportunities_df",
+    #        style={"display": "none"},
+    #    ),
+    # html.Div(sf_manager.get_leads().to_json(orient="split"), id="leads_df", style={"display": "none"}), # leads df
+    # html.Div(sf_manager.get_cases().to_json(orient="split"), id="cases_df", style={"display": "none"}), # cases df
 
 
 
-        # Tab content
-        html.Div(id="tab_content", className="row", style={"margin": "2% 3%"}),
-    ])
+    # Tab content
+    html.Div(
+        id="tab_content",
+        className="row",
+        style={"margin": "2% 3%"},
+        children=[
+            dcc.Graph(
+                id='main_graph',
+                config={"scrollZoom": True}
+            )
+        ]),
+])
+
 
 def parse_contents(contents):
-    content_type, content_string = contents.split(',')
+    _, content_string = contents.split(',')
 
     decoded = base64.b64decode(content_string)
     try:
-            df = pd.read_csv(
+        df = pd.read_csv(
             io.StringIO(decoded.decode('utf-8')))
     except Exception as e:
         print(e)
@@ -94,9 +104,9 @@ def parse_contents(contents):
 
     return df
 
-@app.callback(Output("tab_content", "children"), [Input("tabs", "value"), Input('upload-csv', 'contents')])
+
+@app.callback(Output("main_graph", "figure"), [Input("tabs", "value"), Input('upload-csv', 'contents')])
 def render_content(tab, list_of_contents):
-    #pd.read_csv('C:/Users/Mateusz/Source/Repos/MateuszChilinski/CudaThreadsProfilingTool/Examples/threadFenceReduction/prof20181222232102.csv')
     children = []
     if list_of_contents is not None:
         children = [
@@ -107,13 +117,14 @@ def render_content(tab, list_of_contents):
     elif children:
         df = pd.concat(children)
     if tab == "main_tab":
-        return main.layout(df)
+        return main.figure(df)
     elif tab == "main3d_tab":
-        return main3d.layout(df)
+        return main3d.figure(df)
     elif tab == "histogram_tab":
-        return histogram.layout(df)
+        return histogram.figure(df)
     else:
-        return main.layout(df)
+        return main.figure(df)
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)

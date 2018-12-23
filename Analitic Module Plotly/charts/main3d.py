@@ -14,32 +14,31 @@ import plotly.plotly as py
 from plotly import graph_objs as go
 import math
 import uuid
-def layout(df):
-    df = df[df.x != -1]
 
-    layout = [ dcc.Graph(
-            id='main_graph3d' + str(uuid.uuid4()),
-            figure={
-                'data': [
-                    go.Scatter3d(
-                        x=df[df['label'] == i]['time'],
-                        y=df[df['label'] == i]['x'],
-                        z=df[df['label'] == i]['y'],
-                        text=df[df['label'] == i]['y'],
-                        mode='markers',
-                        opacity=0.7,
-                        marker={
-                            'size': 5
-                        },
-                        name=i
-                    ) for i in df.label.unique()
-                ],
-                'layout': go.Layout(
-                    xaxis={'title': 'Time'},
-                    yaxis={'title': 'X-id'},
-                    margin={'l': 40, 'b': 40, 't': 50, 'r': 10},
-                    showlegend=True,
-                    hovermode='closest'
-                )
-            })]
-    return layout
+
+def figure(df):
+    df = df[df.x != -1]
+    figure = {
+        'data': [
+            go.Scatter3d(
+                x=df[df['label'] == i]['time'],
+                y=df[df['label'] == i]['x'],
+                z=df[df['label'] == i]['y'],
+                text=df[df['label'] == i]['y'],
+                mode='markers',
+                opacity=0.7,
+                marker={
+                    'size': 5
+                },
+                name=i
+            ) for i in df.label.unique()
+        ],
+        'layout': go.Layout(
+            xaxis={'title': 'Time'},
+            yaxis={'title': 'X-id'},
+            margin={'l': 40, 'b': 40, 't': 50, 'r': 10},
+            showlegend=True,
+            hovermode='closest'
+        )
+    }
+    return figure
