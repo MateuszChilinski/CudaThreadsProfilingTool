@@ -3,9 +3,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 import plotly.graph_objs as go
-from charts import main3d, main, histogram
+from charts import *
 import dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
@@ -25,7 +25,6 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
     html.Div([
-
         html.Span("CUDA Threads Profiling Tool Analitic Module v2", className='app-title')]),
 
     dcc.Upload(
@@ -48,45 +47,27 @@ app.layout = html.Div([
         multiple=True
     ),
 
-    html.Div(id='original_data', style={"display": "none"}),
-
-
     # tabs
     html.Div([
-
         dcc.Tabs(
             id="tabs",
             style={"height": "20", "verticalAlign": "middle"},
             children=[
-                dcc.Tab(
-                    label='Main',
-                    value="main_tab",
-                    children=[
-                        html.Div(children=[''], style={"width": "20px", "height": "20px"}), # a little hack to make label visible
-                        html.Div(id="main-graph")
-                    ]),
-                dcc.Tab(
-                    label="Main chart 3d",
-                    value="main3d_tab",
-                    children=[
-                        html.Div(children=[''], style={"width": "20px", "height": "20px"}),
-                        html.Div(id="main3d-graph")
-                    ]),
-                dcc.Tab(
-                    label="Histogram",
-                    value="histogram_tab",
-                    children=[
-                        html.Div(children=[''], style={"width": "20px", "height": "20px"}),
-                        html.Div(id="histogram-graph")
-                    ])
+                dcc.Tab(label='Main', value="main-tab"),
+                dcc.Tab(label="Main chart 3d", value="main3d-tab"),
+                dcc.Tab(label="Histogram", value="histogram-tab")
             ],
-            value="main_tab",
+            value="main-tab",
         )
 
     ],
         className="row tabs_div"
     ),
+    html.Div(id='intermediate-content-div', style={"display": "none"}),
+    html.Div(id="tab-content", children=[dcc.Graph()], style={"margin": "20px"})
 ])
+
+app_state = AppState()
 
 
 def parse_contents(contents):
@@ -98,54 +79,23 @@ def parse_contents(contents):
     return df
 
 
-@app.callback(Output("original_data", "children"), [Input('upload-csv', 'contents')])
-def load_files(list_of_contents):
-    if not list_of_contents:
+@app.callback(Output("intermediate-content-div", "children"), [Input('upload-csv', 'contents')], [State("intermediate-content-div", "children")])
+def load_files(list_of_contents, old_state):
+    if list_of_contents is None:
         return None
     try:
         loaded = [parse_contents(c) for c in list_of_contents]
         df = pd.concat(loaded)
-        return df.to_json()
+        app_state.set_data(df)
     except Exception as ex:
         print(ex)
-        return "Error"
+        app_state.set_data_loading_error()
+    return old_state
 
 
-@app.callback(Output("main-graph", "children"), [Input("original_data", "children")])
-def load_graph_for_main(data):
-    result, data = validate_graph_data(data)
-    if result:
-        return main.layout(data)
-    return data
-
-
-@app.callback(Output("main3d-graph", "children"), [Input("original_data", "children")])
-def load_graph_for_main3d(data):
-    result, data = validate_graph_data(data)
-    if result:
-        return main3d.layout(data)
-    return data
-
-
-@app.callback(Output("histogram-graph", "children"), [Input("original_data", "children")])
-def load_graph_for_histogram(data):
-    result, data = validate_graph_data(data)
-    if result:
-        return histogram.layout(data)
-    return data
-
-
-def validate_graph_data(data):
-    if not data:
-        return False, dcc.Graph()
-    try:
-        data = pd.read_json(data)
-        return True, data
-    except:
-        return False,  html.Div([
-            'There was an error processing this file.',
-            dcc.Graph()
-        ], style={"margin": "10px"})
+@app.callback(Output("tab-content", "children"), [Input("intermediate-content-div", "children"), Input("tabs", "value")])
+def update_content(intermediate_value, current_tab):
+    return app_state.get_content(current_tab)
 
 
 if __name__ == '__main__':

@@ -3,7 +3,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 import plotly.graph_objs as go
-from charts import main3d
 import dash
 from dash.dependencies import Input, Output
 import dash_core_components as dcc
@@ -16,31 +15,48 @@ import math
 import uuid
 
 
-def layout(df):
-    df_kernels = df[df.x == -1]
-    df = df[df.x != -1]
-    maxY = df['x'].max()*1.1
-    kernels = []
-    for _, row in df_kernels.iterrows():
-        time = row['time']
-        if row['label'].startswith("start_"):
-            color = 'rgb(50, 171, 96)'
-        else:
-            color = 'rgb(220, 20, 60)'
-        kernels.append({
-            'type': 'line',
-            'yref': 'y',
-            'x0': time,
-            'x1': time,
-            'y0': 0,
-            'y1': maxY,
-            'line': {
-                    'color': color,
-                    'width': 4,
-                    'dash': 'dashdot',
-            },
-        })
+class Main():
+    def __init__(self):
+        self.kernels = []
+        self.labels = []
+        self.x = []
+        self.y = []
+        self.text = []
+        self.kernels_lines = []
 
+    def set_data(self, data):
+        self.kernels = data[data.x == -1]
+        data = data[data.x != -1]
+        self.labels = data.label.unique()
+        for label in self.labels:
+            self.x.append(data[data['label'] == label]['time'])
+            self.y.append(data[data['label'] == label]['x'])
+            self.text.append(data[data['label'] == label]['y'])
+        self.__generate_kernel_lines()
+
+    def __generate_kernel_lines(self):
+        for _, row in self.kernels.iterrows():
+            time = row['time']
+            if row['label'].startswith("start_"):
+                color = 'rgb(50, 171, 96)'
+            else:
+                color = 'rgb(220, 20, 60)'
+
+            self.kernels_lines.append({
+                'type': 'line',
+                'yref': 'paper',
+                'x0': time,
+                'x1': time,
+                'y0': 0,
+                'y1': 1,
+                'line': {
+                        'color': color,
+                        'width': 4,
+                        'dash': 'dashdot',
+                },
+            })
+
+    def get_content(self):
         layout = dcc.Graph(
             id='main_graph',
             style={"height": "78vh"},
@@ -48,26 +64,25 @@ def layout(df):
             figure={
                 'data': [
                     go.Scattergl(
-                        x=df[df['label'] == i]['time'],
-                        y=df[df['label'] == i]['x'],
-                        text=df[df['label'] == i]['y'],
+                        x=self.x[index],
+                        y=self.y[index],
+                        text=self.text[index],
                         mode='markers',
                         opacity=0.7,
                         marker={
                             'size': 15,
                             'line': {'width': 0.5, 'color': 'white'}
                         },
-                        name=i
-                    ) for i in df.label.unique()
+                        name=label
+                    ) for index, label in enumerate(self.labels)
                 ],
                 'layout': go.Layout(
                     xaxis={'title': 'Time'},
                     yaxis={'title': 'X-id'},
                     margin={'l': 40, 'b': 40, 't': 50, 'r': 10},
-                    shapes=kernels,
+                    shapes=self.kernels_lines,
                     showlegend=True,
                     hovermode='closest'
                 )
             })
-
-    return layout
+        return layout
