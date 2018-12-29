@@ -9,8 +9,7 @@
 #include <fstream>
 #include <math.h>
 
-#define enableProfiler 1
-#define enableProfiler2 0
+#define ENABLE_PROFILER
 
 using namespace std; 
 __global__ struct timestamp {
@@ -27,21 +26,20 @@ __constant__ timestamp* tst;
 __device__ unsigned long long int base = 0;
 
 __global__ void clearBase() {
-#if enableProfiler 1
+#ifdef ENABLE_PROFILER 1
 	base = 0;
 #endif
 }
 __device__ void RegisterTimeMarker(char label)
 {
-#if enableProfiler 1
-		//int idx = threadID >> 5; // divide by 32
-		unsigned long long int mylocation = atomicAdd(&base, 1);
+#ifdef ENABLE_PROFILER
+	unsigned long long int mylocation = atomicAdd(&base, 1);
 
-		tst[mylocation].x = blockIdx.x * blockDim.x + threadIdx.x;
-		tst[mylocation].y = blockIdx.y * blockDim.y + threadIdx.y;
-		tst[mylocation].z = blockIdx.z * blockDim.z + threadIdx.z;
-		tst[mylocation].time = clock64();
-		tst[mylocation].label = label;
+	tst[mylocation].x = blockIdx.x * blockDim.x + threadIdx.x;
+	tst[mylocation].y = blockIdx.y * blockDim.y + threadIdx.y;
+	tst[mylocation].z = blockIdx.z * blockDim.z + threadIdx.z;
+	tst[mylocation].time = clock64();
+	tst[mylocation].label = label;
 		//printf("I am thread %d, my SM ID is %d, my warp ID is %d, and my warp lane is %d and the time is %lld\n", idx, __mysmid(), __mywarpid(), __mylaneid(), clock64());
 #endif
 	//printf("I am thread %d, my SM ID is %d, my warp ID is %d, and my warp lane is %d\n", idx, __mysmid(), __mywarpid(), __mylaneid());
@@ -77,14 +75,14 @@ string labels[256];
 
 void CudaThreadProfiler::CreateLabel(string label, char number)
 {
-#if enableProfiler 1
+#ifdef ENABLE_PROFILER
 	labels[number] = label;
 #endif
 }
 
 void CudaThreadProfiler::InitialiseProfiling()
 {
-#if enableProfiler 1
+#ifdef ENABLE_PROFILER
 	time_t rawtime;
 	firstKernelStartCaught = false;
 	struct tm * timeinfo;
@@ -102,7 +100,7 @@ void CudaThreadProfiler::InitialiseProfiling()
 static int i = 0;
 void CudaThreadProfiler::InitialiseKernelProfiling(string kernel_name, unsigned long long int threads_number, int registers_number = 1)
 {
-#if enableProfiler 1
+#ifdef ENABLE_PROFILER
 	checkCudaErrors(cudaPeekAtLastError());
 	threads = threads_number;
 	registers = registers_number;
@@ -113,7 +111,7 @@ void CudaThreadProfiler::InitialiseKernelProfiling(string kernel_name, unsigned 
 }
 void CudaThreadProfiler::SaveResults()
 {
-#if enableProfiler 1
+#ifdef ENABLE_PROFILER
 	timestamp* host_tst = new timestamp[threads*registers];
 	cudaMemcpy(host_tst, myTst, sizeof(timestamp) * registers * threads, cudaMemcpyDeviceToHost);
 

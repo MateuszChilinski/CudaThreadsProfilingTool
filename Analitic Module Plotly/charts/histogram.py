@@ -3,7 +3,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 import plotly.graph_objs as go
-from charts import main3d
 import dash
 from dash.dependencies import Input, Output
 import dash_core_components as dcc
@@ -16,56 +15,76 @@ import math
 import numpy as np
 import uuid
 
-def layout(df):
-    df_kernels = df[df.x == -1]
-    df = df[df.x != -1]
-    kernels = []
-    grouped = df.groupby(['time', 'label']).size().reset_index(name='count')
-    maxY = 0
-    for i in grouped.label.unique():
-        num = max((np.cumsum(grouped[grouped['label'] == i]['count']))[::len(np.cumsum(grouped[grouped['label'] == i]['count']))-1])
-        if(maxY < num):
-            maxY = num
-    maxY = maxY*1.1
-    for index, row in df_kernels.iterrows():
-        time = row['time']
-        if row['label'].startswith("start_"):
-            color = 'rgb(50, 171, 96)'
-        else:
-            color = 'rgb(220, 20, 60)'
-        kernels.append({
+
+class Histogram():
+    def __init__(self):
+        self.kernels = []
+        self.labels = []
+        self.x = []
+        self.y = []
+        self.text = []
+        self.kernels_lines = []
+
+    def set_data(self, data):
+        self.kernels = data[data.x == -1]
+        data = data[data.x == 1]
+        grouped = data.groupby(
+            ['time', 'label']).size().reset_index(name='count')
+        self.labels = grouped.label.unique()
+
+        for label in self.labels:
+            self.x.append(grouped[grouped['label'] == label]['time'])
+            self.y.append(
+                np.cumsum(grouped[grouped['label'] == label]['count']))
+            self.text.append(grouped[grouped['label'] == label]['label'])
+
+        self.__generate_kernel_lines()
+
+    def __generate_kernel_lines(self):
+        for _, row in self.kernels.iterrows():
+            time = row['time']
+            if row['label'].startswith("start_"):
+                color = 'rgb(50, 171, 96)'
+            else:
+                color = 'rgb(220, 20, 60)'
+
+            self.kernels_lines.append({
                 'type': 'line',
-                'yref': 'y',
+                'yref': 'paper',
                 'x0': time,
                 'x1': time,
                 'y0': 0,
-                'y1': maxY,
+                'y1': 1,
                 'line': {
-                    'color': color,
-                    'width': 4,
-                    'dash': 'dashdot',
+                        'color': color,
+                        'width': 4,
+                        'dash': 'dashdot',
                 },
             })
-    layout = [dcc.Graph(
-            id='histogram_graph' + str(uuid.uuid4()),
+
+    def get_content(self):
+        layout = dcc.Graph(
+            id='main_graph',
+            style={"height": "78vh"},
+            config={"scrollZoom": True},
             figure={
                 'data': [
                     go.Scattergl(
-                        x=grouped[grouped['label'] == i]['time'],
-                        y= np.cumsum(grouped[grouped['label'] == i]['count']),
-                        text=grouped[grouped['label'] == i]['label'],
+                        x=self.x[index],
+                        y=self.y[index],
+                        text=self.text[index],
                         opacity=0.7,
-                        name=i
-                    ) for i in grouped.label.unique()
+                        name=label
+                    ) for index, label in enumerate(self.labels)
                 ],
                 'layout': go.Layout(
                     xaxis={'title': 'Time'},
                     yaxis={'title': 'Count'},
                     margin={'l': 40, 'b': 40, 't': 50, 'r': 10},
-                    shapes= kernels,
+                    shapes=self.kernels_lines,
                     showlegend=True,
                     hovermode='closest'
                 )
-            }
-        )]
-    return layout
+            })
+
+        return layout
