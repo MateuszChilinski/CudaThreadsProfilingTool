@@ -34,15 +34,10 @@ __global__ void clearBase() {
 __device__ void RegisterTimeMarker(char label)
 {
 #if enableProfiler 1
-	const unsigned long long int blockId = blockIdx.x //1D
-		+ blockIdx.y * gridDim.x //2D
-		+ gridDim.x * gridDim.y * blockIdx.z; //3D
-	int threadID = blockId + (threadIdx.x +
-		blockDim.x * threadIdx.y +
-		(blockDim.x * blockDim.y) * threadIdx.z);
-		int idx = threadID >> 5; // divide by 32
+		//int idx = threadID >> 5; // divide by 32
 		unsigned long long int mylocation = atomicAdd(&base, 1);
-		tst[mylocation].x = threadIdx.x + threadIdx.y * blockDim.x + threadIdx.z * blockDim.x * blockDim.y;
+
+		tst[mylocation].x = blockIdx.x * blockDim.x + threadIdx.x;
 		tst[mylocation].y = blockIdx.y * blockDim.y + threadIdx.y;
 		tst[mylocation].z = blockIdx.z * blockDim.z + threadIdx.z;
 		tst[mylocation].time = clock64();
