@@ -35,6 +35,7 @@ class Main():
         self.__generate_kernel_lines()
 
     def __generate_kernel_lines(self):
+        self.kernels_lines.clear()
         for _, row in self.kernels.iterrows():
             time = row['time']
             if row['label'].startswith("start_"):

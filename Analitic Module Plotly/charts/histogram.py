@@ -41,6 +41,7 @@ class Histogram():
         self.__generate_kernel_lines()
 
     def __generate_kernel_lines(self):
+        self.kernel_lines.clear()
         for _, row in self.kernels.iterrows():
             time = row['time']
             if row['label'].startswith("start_"):
@@ -74,7 +75,8 @@ class Histogram():
                         y=self.y[index],
                         text=self.text[index],
                         opacity=0.7,
-                        name=label
+                        name=label,
+                        mode = 'lines+markers',
                     ) for index, label in enumerate(self.labels)
                 ],
                 'layout': go.Layout(
