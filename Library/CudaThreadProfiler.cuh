@@ -9,8 +9,6 @@
 #include <fstream>
 #include <math.h>
 
-#define ENABLE_PROFILER
-
 using namespace std; 
 __global__ struct timestamp {
 	int tid;
@@ -26,7 +24,7 @@ __constant__ timestamp* tst;
 __device__ unsigned long long int base = 0;
 
 __global__ void clearBase() {
-#ifdef ENABLE_PROFILER 1
+#ifdef ENABLE_PROFILER
 	base = 0;
 #endif
 }

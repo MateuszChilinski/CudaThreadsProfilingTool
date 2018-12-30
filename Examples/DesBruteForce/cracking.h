@@ -50,7 +50,7 @@ uint64_t generate_message_kernel(char start_char, int alphabet_size, uint64_t it
 __global__
 void des_kernel(uint64_t cypher, int key_length, char start_char, int alphabet_size, uint64_t* value, bool* found)
 {
-	RegisterTimeMarker("start");
+	RegisterTimeMarker(0);
     int tid = blockDim.x * blockIdx.x + threadIdx.x;
 	int thread_count = blockDim.x * gridDim.x;
 	uint64_t keys_count = 1 << (key_length + 1);
@@ -78,10 +78,11 @@ void des_kernel(uint64_t cypher, int key_length, char start_char, int alphabet_s
 		}
 		if (*found)
 		{
+			RegisterTimeMarker(1);
 			return;
 		}
 	}
-	RegisterTimeMarker("end");
+	RegisterTimeMarker(1);
 }
 
 void run_kernel(int blocks, int threads, uint64_t cypher, uint64_t key, int key_length, char start_char, int alphabet_size, char data[])
@@ -100,7 +101,9 @@ void run_kernel(int blocks, int threads, uint64_t cypher, uint64_t key, int key_
 
 	std::cout << "Kernel starts!\n";
 	gpuErrchk(cudaEventRecord(start, 0));
-	CudaThreadProfiler::InitialiseKernelProfiling((blocks*threads)/32,2);
+	CudaThreadProfiler::CreateLabel("start",0);
+	CudaThreadProfiler::CreateLabel("end",1);
+	CudaThreadProfiler::InitialiseKernelProfiling("des",(blocks*threads),2);
 	des_kernel << <blocks, threads>> > (cypher, key_length, start_char, alphabet_size, d_value, d_found);
 	CudaThreadProfiler::SaveResults();	
 	gpuErrchk(cudaPeekAtLastError());	// ivalid launch argument check

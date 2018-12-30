@@ -9,7 +9,7 @@
 #include "usefull.h"
 #include "cracking.h"
 
-#include "../../Library/Cuda"
+#include "../../Library/CudaThreadProfiler.cuh"
 
 // to w koncu nie dziala
 //https://stackoverflow.com/questions/2619296/how-to-return-a-single-variable-from-a-cuda-kernel-function
@@ -55,6 +55,7 @@ int main()
 	std::cout << "Cypher:  ";
 	bin_print(cypher);
 
-	run_kernel(4096, 512, cypher, key, key_length, start_char, alphabet_size, data);
+	CudaThreadProfiler::InitialiseProfiling();
+	run_kernel(32, 512, cypher, key, key_length, start_char, alphabet_size, data);
     return 0;
 }
