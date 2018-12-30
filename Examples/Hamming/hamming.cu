@@ -461,7 +461,7 @@ __global__ void GPUHamming(Sequence<K> *seq, unsigned int **arr, unsigned int ro
 	Sequence<K> & s = *(seq + seqNumber);
 	__shared__ Sequence<K> sharedArray[seqPerCall];
 
-	RegisterTimeMarker("start");
+	RegisterTimeMarker(0);
 
 	for (unsigned int offset = 0; offset < realSeqNr * bit64words; offset += blockDim.x)
 	{
@@ -472,8 +472,6 @@ __global__ void GPUHamming(Sequence<K> *seq, unsigned int **arr, unsigned int ro
 				*((seq + row_offset - offsetId / bit64words)->Get64BitWord(offsetId % bit64words));
 		}
 	}
-
-	RegisterTimeMarker("first loop end");
 
 	__syncthreads();
 	for (int j = 0; j < bit64words; ++j)
@@ -492,8 +490,6 @@ __global__ void GPUHamming(Sequence<K> *seq, unsigned int **arr, unsigned int ro
 		}
 	}
 
-	RegisterTimeMarker("second loop end");
-
 	for (int i = 0; i < realSeqNr; ++i)
 	{
 		unsigned int b;
@@ -509,7 +505,7 @@ __global__ void GPUHamming(Sequence<K> *seq, unsigned int **arr, unsigned int ro
 		}
 	}
 
-	RegisterTimeMarker("end");
+	RegisterTimeMarker(1);
 }
 
 PairVector GPUFindPairs(Sequence<K> * h_sequence)
@@ -529,21 +525,25 @@ PairVector GPUFindPairs(Sequence<K> * h_sequence)
 	CUDAErrorChecker(cudaMemcpy(d_idata, h_sequence, inputSize, cudaMemcpyHostToDevice));
 
 	CudaThreadProfiler::InitialiseProfiling();
+	CudaThreadProfiler::CreateLabel("start",0);
+	CudaThreadProfiler::CreateLabel("end",1);
 
+	int counter =0;
 	for (int i = N - 1; i > 0; i -= seqPerCall)
 	{
 
 		if (i >= threadsPerBlock)
 		{
-			CudaThreadProfiler::InitialiseKernelProfiling((threadsPerBlock*(i / threadsPerBlock))/32, 4);
+			CudaThreadProfiler::InitialiseKernelProfiling("kernel1_"+counter, (threadsPerBlock*(i / threadsPerBlock)), 2);
 			GPUHamming << < i / threadsPerBlock, threadsPerBlock >> > (d_idata, d_result.deviceArray, i, 0);
 			checkCudaErrors(cudaDeviceSynchronize());
 			checkCudaErrors(cudaPeekAtLastError());
 			CudaThreadProfiler::SaveResults();
 		}
+
 		if (i % threadsPerBlock > 0)
 		{
-			CudaThreadProfiler::InitialiseKernelProfiling((i % threadsPerBlock)/32, 4);
+			CudaThreadProfiler::InitialiseKernelProfiling("kernel2_"+counter,i % threadsPerBlock, 2);
 			GPUHamming << < 1, i % threadsPerBlock >> > (d_idata, d_result.deviceArray, i, i - (i % threadsPerBlock));
 			checkCudaErrors(cudaDeviceSynchronize());
 			checkCudaErrors(cudaPeekAtLastError());
