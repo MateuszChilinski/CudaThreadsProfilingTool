@@ -104,7 +104,7 @@ void run_kernel(int blocks, int threads, uint64_t cypher, uint64_t key, int key_
 	CudaThreadProfiler::CreateLabel("start",0);
 	CudaThreadProfiler::CreateLabel("end",1);
 	CudaThreadProfiler::InitialiseKernelProfiling("des",(blocks*threads),2);
-	des_kernel << <blocks, threads>> > (cypher, key_length, start_char, alphabet_size, d_value, d_found);
+	des_kernel <<<blocks, threads>> > (cypher, key_length, start_char, alphabet_size, d_value, d_found);
 	CudaThreadProfiler::SaveResults();	
 	gpuErrchk(cudaPeekAtLastError());	// ivalid launch argument check
 	gpuErrchk(cudaDeviceSynchronize());	// kernel execution error

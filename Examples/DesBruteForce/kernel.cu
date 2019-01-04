@@ -56,6 +56,6 @@ int main()
 	bin_print(cypher);
 
 	CudaThreadProfiler::InitialiseProfiling();
-	run_kernel(32, 512, cypher, key, key_length, start_char, alphabet_size, data);
+	run_kernel(512, 512, cypher, key, key_length, start_char, alphabet_size, data);
     return 0;
 }

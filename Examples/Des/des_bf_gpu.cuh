@@ -80,8 +80,8 @@ __host__ void des_brute_force_gpu(char *key_alphabet, int key_length, char *mess
     cudaEventCreate(&start);
     cudaEventRecord(start,0);
 
-    int block=32;
-    int thread =512;
+    int block=2;
+    int thread =1024;
 
     CudaThreadProfiler::CreateLabel("start", 0);
 	CudaThreadProfiler::CreateLabel("end", 1);

@@ -27,7 +27,7 @@ __device__ void sleep(clock_value_t sleep_cycles)
 __global__ void GPUDelays(long long int* global_now)
 {
 	RegisterTimeMarker(0); 
-	sleep(50000000);
+	sleep(5000000);
 	RegisterTimeMarker(1);
 }
 int main()
@@ -42,7 +42,7 @@ int main()
 	CudaThreadProfiler::CreateLabel("start", 0);
 	CudaThreadProfiler::CreateLabel("end", 1);
 	CudaThreadProfiler::InitialiseKernelProfiling("delay_kernel", 32*512, 2);
-	GPUDelays << < 32, 512>> > (rd);
+	GPUDelays <<<32, 32>> > (rd);
 	CudaThreadProfiler::SaveResults();
 
 	cudaStatus = cudaDeviceReset();
