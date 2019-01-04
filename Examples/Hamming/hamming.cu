@@ -11,8 +11,8 @@
 
 using namespace std;
 
-const int K = 10000; // No bits in seq
-const unsigned long long N = 100000ull; // No seq
+const int K = 1000; // No bits in seq
+const unsigned long long N = 10000ull; // No seq
 const unsigned long long cmp = (N * (N - 1)) / 2; // No comparisons
 const int threadsPerBlock = 1024;
 const int seqPerCall = 35; // no rows per func call
