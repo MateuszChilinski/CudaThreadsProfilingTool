@@ -26,16 +26,28 @@ class Main():
 
     def set_data(self, data):
         self.kernels = data[data.x == -1]
-        data = data[data.x != -1]
-        self.labels = data.label.unique()
+        internal_data = data[data.x != -1]
+        self.labels = internal_data.label.unique()
+
+        self.x.clear()
+        self.y.clear()
+        self.text.clear()
+
         for label in self.labels:
-            self.x.append(data[data['label'] == label]['time'])
-            self.y.append(data[data['label'] == label]['x'])
-            self.text.append(data[data['label'] == label]['y'])
+            time = internal_data[internal_data['label'] == label]['time']
+            self.x.append(time)
+
+            x_id = internal_data[internal_data['label'] == label]['x']
+            self.y.append(x_id)
+
+            text = internal_data[internal_data['label'] == label]['label']
+            self.text.append(text)
+
         self.__generate_kernel_lines()
 
     def __generate_kernel_lines(self):
         self.kernels_lines.clear()
+
         for _, row in self.kernels.iterrows():
             time = row['time']
             if row['label'].startswith("start_"):

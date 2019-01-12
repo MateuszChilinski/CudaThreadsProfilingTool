@@ -24,13 +24,25 @@ class Main3d():
         self.labels = []
 
     def set_data(self, data):
-        data = data[data.x != -1]
+        internal_data = data[data.x != -1]
         self.labels = data.label.unique()
+        self.x.clear()
+        self.y.clear()
+        self.z.clear()
+        self.text.clear()
+
         for label in self.labels:
-            self.x.append(data[data['label'] == label]['time'])
-            self.y.append(data[data['label'] == label]['x'])
-            self.z.append(data[data['label'] == label]['y'])
-            self.text.append(data[data['label'] == label]['y'])
+            time = internal_data[internal_data['label'] == label]['time']
+            self.x.append(time)
+
+            x_id = internal_data[internal_data['label'] == label]['x']
+            self.y.append(x_id)
+
+            y_id = internal_data[internal_data['label'] == label]['y']
+            self.z.append(y_id)
+
+            text = internal_data[internal_data['label'] == label]['label']
+            self.text.append(text)
 
     def get_content(self,):
         layout = dcc.Graph(

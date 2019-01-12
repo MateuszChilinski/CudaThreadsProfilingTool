@@ -27,16 +27,24 @@ class Histogram():
 
     def set_data(self, data):
         self.kernels = data[data.x == -1]
-        data = data[data.x == 1]
-        grouped = data.groupby(
+        internal_data = data[data.x != -1]
+        grouped = internal_data.groupby(
             ['time', 'label']).size().reset_index(name='count')
         self.labels = grouped.label.unique()
 
+        self.x.clear()
+        self.y.clear()
+        self.text.clear()
+
         for label in self.labels:
-            self.x.append(grouped[grouped['label'] == label]['time'])
-            self.y.append(
-                np.cumsum(grouped[grouped['label'] == label]['count']))
-            self.text.append(grouped[grouped['label'] == label]['label'])
+            time = grouped[grouped['label'] == label]['time']
+            self.x.append(time)
+
+            count = np.cumsum(grouped[grouped['label'] == label]['count'])
+            self.y.append(count)
+
+            text = grouped[grouped['label'] == label]['label']
+            self.text.append(text)
 
         self.__generate_kernel_lines()
 
@@ -76,7 +84,7 @@ class Histogram():
                         text=self.text[index],
                         opacity=0.7,
                         name=label,
-                        mode = 'lines+markers',
+                        mode='lines+markers',
                     ) for index, label in enumerate(self.labels)
                 ],
                 'layout': go.Layout(
