@@ -30,7 +30,6 @@ __device__ void sleep(clock_value_t sleep_cycles)
 __global__ void single_loop(int* limits)
 {
 	int tid = blockDim.x * blockIdx.x + threadIdx.x;
-	int M = limits[threadIdx.x];
 	RegisterTimeMarker(0); 
 
 	const int SLEEP_TIME = 50000000;
@@ -194,11 +193,6 @@ __global__ void single_loop(int* limits)
 		case 31:
 			RegisterTimeMarker(1);
 			sleep(SLEEP_TIME*32);
-			RegisterTimeMarker(2);
-			break;
-		case 32:
-			RegisterTimeMarker(1);
-			sleep(SLEEP_TIME*33);
 			RegisterTimeMarker(2);
 			break;
 	}
