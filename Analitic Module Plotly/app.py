@@ -64,27 +64,31 @@ app.layout = html.Div([
         className="row tabs_div"
     ),
     html.Div(id='intermediate-content-div', style={"display": "none"}),
-    html.Div(id="tab-content", children=[dcc.Graph()], style={"margin": "20px"})
+    html.Div(id="tab-content",
+             children=[dcc.Graph()], style={"margin": "20px"})
 ])
 
 app_state = AppState()
 
 
-def parse_contents(contents):
+def parse_contents(contents, filename):
     _, content_string = contents.split(',')
-
     decoded = base64.b64decode(content_string)
     df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
-
+    df['label'] = filename.replace('.csv', '_')+df['label']
     return df
 
 
-@app.callback(Output("intermediate-content-div", "children"), [Input('upload-csv', 'contents')], [State("intermediate-content-div", "children")])
-def load_files(list_of_contents, old_state):
+@app.callback(Output("intermediate-content-div", "children"),
+              [Input('upload-csv', 'contents')],
+              [State("upload-csv", "filename"),
+               State("intermediate-content-div", "children")])
+def load_files(list_of_contents, list_of_names, old_state):
     if list_of_contents is None:
         return None
     try:
-        loaded = [parse_contents(c) for c in list_of_contents]
+        loaded = [parse_contents(c, n)
+                  for c, n in zip(list_of_contents, list_of_names)]
         df = pd.concat(loaded)
         app_state.set_data(df)
     except Exception as ex:
