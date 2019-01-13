@@ -42,7 +42,7 @@ int main()
 	CudaThreadProfiler::CreateLabel("start", 0);
 	CudaThreadProfiler::CreateLabel("end", 1);
 	CudaThreadProfiler::InitialiseKernelProfiling("delay_kernel", 32*512, 2);
-	GPUDelays <<<32, 32>> > (rd);
+	GPUDelays <<<32, 512>> > (rd);
 	CudaThreadProfiler::SaveResults();
 
 	cudaStatus = cudaDeviceReset();
