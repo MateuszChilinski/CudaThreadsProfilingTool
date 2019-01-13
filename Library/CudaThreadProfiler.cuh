@@ -142,7 +142,6 @@ void CudaThreadProfiler::SaveResults()
 	{
 		timestamp tstmp = host_tst[i];
 		outfile << tstmp.x << "," << tstmp.y << "," << tstmp.z << "," << tstmp.time << "," << kernelName << "_" << labels[tstmp.label] << "_" << savedResultNumber <<"\n";
-		//outfile << tstmp.tid << "," << tstmp.time / prop->clockRate << "," << tstmp.label << "\n";
 	}
 	outfile << -1 << "," << -1 << "," << -1 << "," << kernelEnd << ",end_" << kernelName << "_" << savedResultNumber << "\n";
 	savedResultNumber++;
