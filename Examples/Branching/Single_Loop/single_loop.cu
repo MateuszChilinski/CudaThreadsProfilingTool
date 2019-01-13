@@ -34,12 +34,23 @@ __global__ void single_loop(int* limits)
 	RegisterTimeMarker(0); 
 
 	const int SLEEP_TIME = 50000000;
-
-	for(int i=0;i<M;i++){
-		sleep(SLEEP_TIME);	
+	switch(tid % 4)
+	{
+		case 0:
+			sleep(SLEEP_TIME);
+			RegisterTimeMarker(1);
+		case 1:
+			sleep(SLEEP_TIME*2);
+			RegisterTimeMarker(1);
+		case 2:
+			sleep(SLEEP_TIME*3);
+			RegisterTimeMarker(1);
+		case 3:
+			sleep(SLEEP_TIME*4);
+			RegisterTimeMarker(1);
 	}
 
-	RegisterTimeMarker(1);
+	RegisterTimeMarker(2);
 }
 
 int main()
@@ -66,7 +77,8 @@ int main()
 	const int thread_per_block = 32;
 
 	CudaThreadProfiler::CreateLabel("start",0);
-	CudaThreadProfiler::CreateLabel("end",1);
+	CudaThreadProfiler::CreateLabel("switch",1);
+	CudaThreadProfiler::CreateLabel("end",2);
 	CudaThreadProfiler::InitialiseKernelProfiling("single_loop_kernel",blocks*thread_per_block,2);
 
 	single_loop<<<blocks,thread_per_block>>>(dev_limits);
