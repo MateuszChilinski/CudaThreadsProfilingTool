@@ -35,10 +35,11 @@ __global__ void single_loop(int* limits)
 
 	const int SLEEP_TIME = 50000000;
 
-	int i;
-	for(i=0;i<M;i++){
-		
+	for(int i=0;i<M;i++){
+		sleep(SLEEP_TIME);	
 	}
+
+	RegisterTimeMarker(1);
 }
 
 int main()
