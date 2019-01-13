@@ -9,9 +9,12 @@
 #include <fstream>
 #include <math.h>
 
+/*
+ * Structure that every individual thread fills in, contains global XYZ positions along with time and label id.
+ */
+
 using namespace std; 
 __global__ struct timestamp {
-	int tid;
 	int x;
 	int y;
 	int z;
@@ -19,15 +22,32 @@ __global__ struct timestamp {
 	char label;
 };
 
+/*
+ * Symbol pointing to the array of data about threads
+ */
+
 __constant__ timestamp* tst;
 
+/*
+ * Current marker id
+ */
+
 __device__ unsigned long long int base = 0;
+
+/*
+ * Function used for clearning count of current marker id
+ */
 
 __global__ void clearBase() {
 #ifdef ENABLE_PROFILER
 	base = 0;
 #endif
 }
+
+/*
+ * Function used in kernel to register time marker of the thread
+ */
+
 __device__ void RegisterTimeMarker(char label)
 {
 #ifdef ENABLE_PROFILER
@@ -38,25 +58,54 @@ __device__ void RegisterTimeMarker(char label)
 	tst[mylocation].z = blockIdx.z * blockDim.z + threadIdx.z;
 	tst[mylocation].time = clock64();
 	tst[mylocation].label = label;
-		//printf("I am thread %d, my SM ID is %d, my warp ID is %d, and my warp lane is %d and the time is %lld\n", idx, __mysmid(), __mywarpid(), __mylaneid(), clock64());
 #endif
-	//printf("I am thread %d, my SM ID is %d, my warp ID is %d, and my warp lane is %d\n", idx, __mysmid(), __mywarpid(), __mylaneid());
 }
+
+/*
+ * Helping class for the whole module
+ */
 
 class CudaThreadProfiler
 {
+	/*
+	 * Output file
+	 */
 	static ofstream outfile;
+	/*
+	 * Data to put in the file
+	 */
 	static timestamp* myTst;
+	/*
+	 * Number of threads that we want to profile
+	 */
 	static int threads;
+	/*
+	 * Number of labels we want to use
+	 */
 	static int registers;
+	/*
+	 * Name of the kernel
+	 */
 	static string kernelName;
 	static unsigned long long firstKernelStart;
 	static bool firstKernelStartCaught;
 	static int savedResultNumber;
 public:
+	/*
+	 * Function used to enable profiler in the first place
+	 */
 	static void InitialiseProfiling();
+	/*
+	 * Function used to register profiler for a kernel
+	 */
 	static void InitialiseKernelProfiling(string, unsigned long long int, int);
+	/*
+	 * Function used to register a label(mapping name->id)
+	 */
 	static void CreateLabel(string, char);
+	/*
+	 * Function used to save the results
+	 */
 	static void SaveResults();
 };
 
