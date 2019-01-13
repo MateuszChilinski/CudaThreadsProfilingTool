@@ -33,7 +33,7 @@ __global__ void single_loop(int* limits)
 	RegisterTimeMarker(0); 
 
 	const int SLEEP_TIME = 50000000;
-	switch(tid)
+	switch(tid % 32)
 	{
 		case 0:
 			RegisterTimeMarker(1);
@@ -220,7 +220,7 @@ int main()
 
 	checkCudaErrors(cudaPeekAtLastError());
 
-	const int blocks = 1;
+	const int blocks = 2;
 	const int thread_per_block = 32;
 
 	CudaThreadProfiler::CreateLabel("start",0);
