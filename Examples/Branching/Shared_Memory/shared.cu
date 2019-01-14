@@ -4,7 +4,7 @@
 #include <ctime>
 #include <stdio.h>
 #include <iostream>
-#include "../../../Library/CudaThreadProfiler.cuh"
+#include "../../../Library/ParallelThreadProfiler.cuh"
 #pragma once
 #include <string>
 #include <vector>
@@ -48,7 +48,7 @@ __global__ void single_loop(int* limits)
 int main()
 {
 	cudaError_t cudaStatus;
-	CudaThreadProfiler::InitialiseProfiling();
+	ParallelThreadProfiler::InitialiseProfiling();
 
 	cout << endl << "GPU computations started..." << endl;
 	srand(time(NULL));
@@ -68,14 +68,14 @@ int main()
 	const int blocks = 16;
 	const int thread_per_block = 128;
 
-	CudaThreadProfiler::CreateLabel("start",0);
-	CudaThreadProfiler::CreateLabel("switch",1);
-	CudaThreadProfiler::CreateLabel("end",2);
-	CudaThreadProfiler::InitialiseKernelProfiling("single_loop_kernel",blocks*thread_per_block,2);
+	ParallelThreadProfiler::CreateLabel("start",0);
+	ParallelThreadProfiler::CreateLabel("switch",1);
+	ParallelThreadProfiler::CreateLabel("end",2);
+	ParallelThreadProfiler::InitialiseKernelProfiling("single_loop_kernel",blocks*thread_per_block,2);
 
 	single_loop<<<blocks,thread_per_block>>>(dev_limits);
 
-	CudaThreadProfiler::SaveResults();
+	ParallelThreadProfiler::SaveResults();
 
 	cudaFree(dev_limits);
 	cudaStatus = cudaDeviceReset();

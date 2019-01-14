@@ -370,9 +370,9 @@ runTest(int argc, char **argv)
     int cpuFinalThreshold = 1;
     bool multipass = false;
     bool bTestResult = false;
-	CudaThreadProfiler::InitialiseProfiling();
-	CudaThreadProfiler::CreateLabel("start", 0);
-	CudaThreadProfiler::CreateLabel("end", 1);
+	ParallelThreadProfiler::InitialiseProfiling();
+	ParallelThreadProfiler::CreateLabel("start", 0);
+	ParallelThreadProfiler::CreateLabel("end", 1);
 
     if (checkCmdLineFlag(argc, (const char **) argv, "n"))
     {

@@ -4,7 +4,7 @@
 #include <ctime>
 #include <stdio.h>
 #include <iostream>
-#include "../../Library/CudaThreadProfiler.cuh"
+#include "../../Library/ParallelThreadProfiler.cuh"
 #pragma once
 #include <string>
 #include <vector>
@@ -33,17 +33,17 @@ __global__ void GPUDelays(long long int* global_now)
 int main()
 {
 	cudaError_t cudaStatus;
-	CudaThreadProfiler::InitialiseProfiling();
+	ParallelThreadProfiler::InitialiseProfiling();
 	cout << endl << "GPU computations started..." << endl;
 	srand(time(NULL));
 	long long int *rd;
 	cudaMalloc((void **)&rd, sizeof(long long int));
 
-	CudaThreadProfiler::CreateLabel("start", 0);
-	CudaThreadProfiler::CreateLabel("end", 1);
-	CudaThreadProfiler::InitialiseKernelProfiling("delay_kernel", 32*512, 2);
+	ParallelThreadProfiler::CreateLabel("start", 0);
+	ParallelThreadProfiler::CreateLabel("end", 1);
+	ParallelThreadProfiler::InitialiseKernelProfiling("delay_kernel", 32*512, 2);
 	GPUDelays <<<32, 512>> > (rd);
-	CudaThreadProfiler::SaveResults();
+	ParallelThreadProfiler::SaveResults();
 
 	cudaStatus = cudaDeviceReset();
 	if (cudaStatus != cudaSuccess) {

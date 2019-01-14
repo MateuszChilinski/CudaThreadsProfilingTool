@@ -8,7 +8,7 @@
 #include <time.h>
 #include <fstream>
 #include <math.h>
-
+#define ENABLE_PROFILER
 /*
  * Structure that every individual thread fills in, contains global XYZ positions along with time and label id.
  */
@@ -65,7 +65,7 @@ __device__ void RegisterTimeMarker(char label)
  * Helping class for the whole module
  */
 
-class CudaThreadProfiler
+class ParallelThreadProfiler
 {
 	/*
 	 * Output file
@@ -109,25 +109,25 @@ public:
 	static void SaveResults();
 };
 
-timestamp* CudaThreadProfiler::myTst;
-ofstream CudaThreadProfiler::outfile;
+timestamp* ParallelThreadProfiler::myTst;
+ofstream ParallelThreadProfiler::outfile;
 
-int CudaThreadProfiler::threads = 0;
-int CudaThreadProfiler::registers = 0;
-string CudaThreadProfiler::kernelName;
-bool CudaThreadProfiler::firstKernelStartCaught;
-unsigned long long CudaThreadProfiler::firstKernelStart;
-int CudaThreadProfiler::savedResultNumber = 0;
+int ParallelThreadProfiler::threads = 0;
+int ParallelThreadProfiler::registers = 0;
+string ParallelThreadProfiler::kernelName;
+bool ParallelThreadProfiler::firstKernelStartCaught;
+unsigned long long ParallelThreadProfiler::firstKernelStart;
+int ParallelThreadProfiler::savedResultNumber = 0;
 string labels[256];
 
-void CudaThreadProfiler::CreateLabel(string label, char number)
+void ParallelThreadProfiler::CreateLabel(string label, char number)
 {
 #ifdef ENABLE_PROFILER
 	labels[number] = label;
 #endif
 }
 
-void CudaThreadProfiler::InitialiseProfiling()
+void ParallelThreadProfiler::InitialiseProfiling()
 {
 #ifdef ENABLE_PROFILER
 	time_t rawtime;
@@ -145,18 +145,18 @@ void CudaThreadProfiler::InitialiseProfiling()
 #endif
 }
 static int i = 0;
-void CudaThreadProfiler::InitialiseKernelProfiling(string kernel_name, unsigned long long int threads_number, int registers_number = 1)
+void ParallelThreadProfiler::InitialiseKernelProfiling(string kernel_name, unsigned long long int threads_number, int registers_count = 1)
 {
 #ifdef ENABLE_PROFILER
 	checkCudaErrors(cudaPeekAtLastError());
 	threads = threads_number;
-	registers = registers_number;
+	registers = registers_count;
 	kernelName = kernel_name;
-	checkCudaErrors(cudaMalloc((void **)&myTst, registers * threads * 32 * sizeof(timestamp)));
+	checkCudaErrors(cudaMalloc((void **)&myTst, registers * threads * sizeof(timestamp)));
 	checkCudaErrors(cudaMemcpyToSymbol(tst, &myTst, sizeof(myTst)));
 #endif
 }
-void CudaThreadProfiler::SaveResults()
+void ParallelThreadProfiler::SaveResults()
 {
 #ifdef ENABLE_PROFILER
 	timestamp* host_tst = new timestamp[threads*registers];

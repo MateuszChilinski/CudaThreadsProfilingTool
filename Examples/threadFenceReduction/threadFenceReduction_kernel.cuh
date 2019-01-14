@@ -17,7 +17,7 @@
 #ifndef _REDUCE_KERNEL_H_
 #define _REDUCE_KERNEL_H_
 
-#include "../../Library/CudaThreadProfiler.cuh"
+#include "../../Library/ParallelThreadProfiler.cuh"
 
 namespace cg = cooperative_groups;
 
@@ -237,7 +237,7 @@ void reduce(int size, int threads, int blocks, float *d_idata, float *d_odata)
     dim3 dimGrid(blocks, 1, 1);
     int smemSize = (threads <= 32) ? 2 * threads * sizeof(float) : threads * sizeof(float);
 
-	CudaThreadProfiler::InitialiseKernelProfiling("kernelReduce", (threads*blocks), 2);
+	ParallelThreadProfiler::InitialiseKernelProfiling("kernelReduce", (threads*blocks), 2);
     // choose which of the optimized versions of reduction to launch
     if (isPow2(size))
     {
@@ -329,7 +329,7 @@ void reduce(int size, int threads, int blocks, float *d_idata, float *d_odata)
                 break;
         }
     }
-	CudaThreadProfiler::SaveResults();
+	ParallelThreadProfiler::SaveResults();
 }
 
 extern "C"
@@ -338,7 +338,7 @@ void reduceSinglePass(int size, int threads, int blocks, float *d_idata, float *
     dim3 dimBlock(threads, 1, 1);
     dim3 dimGrid(blocks, 1, 1);
     int smemSize = threads * sizeof(float);
-	CudaThreadProfiler::InitialiseKernelProfiling("kernelReduceSinglePass", (threads*blocks), 2);
+	ParallelThreadProfiler::InitialiseKernelProfiling("kernelReduceSinglePass", (threads*blocks), 2);
 
     // choose which of the optimized versions of reduction to launch
     if (isPow2(size))
@@ -431,7 +431,7 @@ void reduceSinglePass(int size, int threads, int blocks, float *d_idata, float *
                 break;
         }
     }
-	CudaThreadProfiler::SaveResults();
+	ParallelThreadProfiler::SaveResults();
 }
 
 #endif // #ifndef _REDUCE_KERNEL_H_

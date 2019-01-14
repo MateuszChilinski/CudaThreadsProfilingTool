@@ -4,7 +4,7 @@
 #include <ctime>
 #include <stdio.h>
 #include <iostream>
-#include "../../../Library/CudaThreadProfiler.cuh"
+#include "../../../Library/ParallelThreadProfiler.cuh"
 #pragma once
 #include <string>
 #include <vector>
@@ -203,7 +203,7 @@ __global__ void single_loop(int* limits)
 int main()
 {
 	cudaError_t cudaStatus;
-	CudaThreadProfiler::InitialiseProfiling();
+	ParallelThreadProfiler::InitialiseProfiling();
 
 	cout << endl << "GPU computations started..." << endl;
 	srand(time(NULL));
@@ -223,15 +223,15 @@ int main()
 	const int blocks = 2;
 	const int thread_per_block = 32;
 
-	CudaThreadProfiler::CreateLabel("start",0);
-	CudaThreadProfiler::CreateLabel("switch_start",1);
-	CudaThreadProfiler::CreateLabel("switch_end",2);
-	CudaThreadProfiler::CreateLabel("end",3);
-	CudaThreadProfiler::InitialiseKernelProfiling("single_loop_kernel",blocks*thread_per_block,4);
+	ParallelThreadProfiler::CreateLabel("start",0);
+	ParallelThreadProfiler::CreateLabel("switch_start",1);
+	ParallelThreadProfiler::CreateLabel("switch_end",2);
+	ParallelThreadProfiler::CreateLabel("end",3);
+	ParallelThreadProfiler::InitialiseKernelProfiling("single_loop_kernel",blocks*thread_per_block,4);
 
 	single_loop<<<blocks,thread_per_block>>>(dev_limits);
 
-	CudaThreadProfiler::SaveResults();
+	ParallelThreadProfiler::SaveResults();
 
 	cudaFree(dev_limits);
 	cudaDeviceSynchronize();
