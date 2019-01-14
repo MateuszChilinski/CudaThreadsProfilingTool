@@ -145,7 +145,7 @@ void ParallelThreadProfiler::InitialiseProfiling()
 #endif
 }
 static int i = 0;
-void ParallelThreadProfiler::InitialiseKernelProfiling(string kernel_name, unsigned long long int threads_number, int registers_count = 1)
+void ParallelThreadProfiler::InitialiseKernelProfiling(string kernel_name, unsigned long long int threads_number, unsigned registers_count = 1)
 {
 #ifdef ENABLE_PROFILER
 	checkCudaErrors(cudaPeekAtLastError());
