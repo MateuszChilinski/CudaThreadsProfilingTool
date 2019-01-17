@@ -73,7 +73,7 @@ class Histogram():
 
     def get_content(self):
         layout = dcc.Graph(
-            id='main_graph',
+            id='main_graph' + str(uuid.uuid4()),
             style={"height": "78vh"},
             config={"scrollZoom": True},
             figure={
@@ -90,10 +90,11 @@ class Histogram():
                 'layout': go.Layout(
                     xaxis={'title': 'Time'},
                     yaxis={'title': 'Count'},
-                    margin={'l': 40, 'b': 40, 't': 50, 'r': 10},
+                    margin={'l': 85, 'b': 70, 't': 70, 'r': 10},
                     shapes=self.kernels_lines,
                     showlegend=True,
-                    hovermode='closest'
+                    hovermode='closest',
+                    font=dict(family='Courier New, monospace', size=16, color='#7f7f7f')
                 )
             })
 
