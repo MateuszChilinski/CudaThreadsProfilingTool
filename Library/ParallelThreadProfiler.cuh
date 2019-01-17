@@ -98,7 +98,7 @@ public:
 	/*
 	 * Function used to register profiler for a kernel
 	 */
-	static void InitialiseKernelProfiling(string, unsigned long long int, int);
+	static void InitialiseKernelProfiling(string, unsigned long long int, unsigned);
 	/*
 	 * Function used to register a label(mapping name->id)
 	 */

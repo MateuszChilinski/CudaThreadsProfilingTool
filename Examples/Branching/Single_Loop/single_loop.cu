@@ -198,6 +198,10 @@ __global__ void single_loop(int* limits)
 	}
 
 	RegisterTimeMarker(3);
+
+	sleep(SLEEP_TIME*15);
+
+	RegisterTimeMarker(4);
 }
 
 int main()
@@ -224,10 +228,11 @@ int main()
 	const int thread_per_block = 32;
 
 	ParallelThreadProfiler::CreateLabel("start",0);
-	ParallelThreadProfiler::CreateLabel("switch_start",1);
-	ParallelThreadProfiler::CreateLabel("switch_end",2);
-	ParallelThreadProfiler::CreateLabel("end",3);
-	ParallelThreadProfiler::InitialiseKernelProfiling("single_loop_kernel",blocks*thread_per_block,4);
+	ParallelThreadProfiler::CreateLabel("switch_case_start",1);
+	ParallelThreadProfiler::CreateLabel("switch_case_end",2);
+	ParallelThreadProfiler::CreateLabel("switch_end",3);
+	ParallelThreadProfiler::CreateLabel("end",4);
+	ParallelThreadProfiler::InitialiseKernelProfiling("single_loop_kernel",blocks*thread_per_block,5);
 
 	single_loop<<<blocks,thread_per_block>>>(dev_limits);
 
