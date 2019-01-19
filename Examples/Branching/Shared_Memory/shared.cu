@@ -27,19 +27,17 @@ __device__ void sleep(clock_value_t sleep_cycles)
 	do { cycles_elapsed = clock64() - start; } while (cycles_elapsed < sleep_cycles);
 }
 
+const int SLEEP_TIME = 50000000;
 __global__ void single_loop(int* limits)
 {
 	RegisterTimeMarker(0); 
 	int tid = blockDim.x * blockIdx.x + threadIdx.x;
 	int M = limits[threadIdx.x];
-	if(tid % 32 == 0)
-	{
-		__shared__ int s[sharedmemory_ints];
-		for(int i = 0; i < sharedmemory_ints; i++)
-			s[i] = i;
-	}
 
-	const int SLEEP_TIME = 50000000;
+	__shared__ int s[sharedmemory_ints];
+	for(int i = 0; i < sharedmemory_ints; i++)
+		s[i] = i;
+
 	sleep(SLEEP_TIME);
 
 	RegisterTimeMarker(2);
