@@ -31,7 +31,6 @@ class Histogram():
         grouped = internal_data.groupby(
             ['time', 'label']).size().reset_index(name='count')
         self.labels = grouped.label.unique()
-
         self.x.clear()
         self.y.clear()
         self.text.clear()
@@ -87,9 +86,9 @@ class Histogram():
                     ) for index, label in enumerate(self.labels)
                 ],
                 'layout': go.Layout(
-                    xaxis={'title': 'Time'},
+                    xaxis={'title': 'Time', 'type': 'category'},
                     yaxis={'title': 'Count'},
-                    margin={'l': 120, 'b': 90, 't': 70, 'r': 10},
+                    margin={'l': 120, 'b': 150, 't': 70, 'r': 10},
                     shapes=self.kernels_lines,
                     showlegend=True,
                     hovermode='closest',
