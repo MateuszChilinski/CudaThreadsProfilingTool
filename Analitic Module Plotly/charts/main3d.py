@@ -63,13 +63,13 @@ class Main3d():
                         name=label
                     ) for index, label in enumerate(self.labels)
                 ],
-                'layout': go.Layout(
-                    xaxis={'title': 'Time'},
-                    yaxis={'title': 'X-id'},
-                    margin={'l': 85, 'b': 70, 't': 70, 'r': 10},
+                'layout': go.Layout(scene = dict(xaxis = dict(title='Time'),
+                    yaxis = dict(title='X-id'),
+                    zaxis = dict(title='Y-id')),
+                    margin={'l': 180, 'b': 150, 't': 150, 'r': 10},
                     showlegend=True,
                     hovermode='closest',
-                    font=dict(family='Courier New, monospace', size=16, color='#7f7f7f')
+                    font=dict(family='Courier New, monospace', size=22, color='#7f7f7f')
                 )
             })
         return layout

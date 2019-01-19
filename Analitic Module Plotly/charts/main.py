@@ -92,11 +92,11 @@ class Main():
                 'layout': go.Layout(
                     xaxis={'title': 'Time'},
                     yaxis={'title': 'X-id'},
-                    margin={'l': 85, 'b': 70, 't': 70, 'r': 10},
+                    margin={'l': 120, 'b': 90, 't': 70, 'r': 10},
                     shapes=self.kernels_lines,
                     showlegend=True,
                     hovermode='closest',
-                    font=dict(family='Courier New, monospace', size=16, color='#7f7f7f')
+                    font=dict(family='Courier New, monospace', size=32, color='#7f7f7f')
                 )
             })
         return layout
