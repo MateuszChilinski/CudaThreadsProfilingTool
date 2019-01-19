@@ -17,7 +17,6 @@ using namespace std;
 using clock_value_t = long long;
 
 #define WARP_SIZE 32
-#define sharedmemory_ints 6144
 
 
 __device__ void sleep(clock_value_t sleep_cycles)
@@ -27,6 +26,7 @@ __device__ void sleep(clock_value_t sleep_cycles)
 	do { cycles_elapsed = clock64() - start; } while (cycles_elapsed < sleep_cycles);
 }
 
+#define sharedmemory_ints 6144
 const int SLEEP_TIME = 50000000;
 __global__ void single_loop(int* limits)
 {
