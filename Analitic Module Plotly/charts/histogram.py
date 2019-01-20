@@ -28,8 +28,7 @@ class Histogram():
     def set_data(self, data):
         self.kernels = data[data.x == -1]
         internal_data = data[data.x != -1]
-        grouped = internal_data.groupby(
-            ['time', 'label']).size().reset_index(name='count')
+        grouped = internal_data.groupby(['time', 'label']).size().reset_index(name='count')
         self.labels = grouped.label.unique()
         self.x.clear()
         self.y.clear()
@@ -51,7 +50,7 @@ class Histogram():
         self.kernels_lines.clear()
         for _, row in self.kernels.iterrows():
             time = row['time']
-            if row['label'].startswith("start_"):
+            if "start_" in row['label']:
                 color = 'rgb(50, 171, 96)'
             else:
                 color = 'rgb(220, 20, 60)'
@@ -83,16 +82,16 @@ class Histogram():
                         text=self.text[index],
                         opacity=0.7,
                         name=label,
+                        hoverinfo='x+y+z+text'
                     ) for index, label in enumerate(self.labels)
                 ],
                 'layout': go.Layout(
                     xaxis={'title': 'Time', 'type': 'category'},
                     yaxis={'title': 'Count'},
-                    margin={'l': 120, 'b': 150, 't': 70, 'r': 10},
                     shapes=self.kernels_lines,
                     showlegend=True,
                     hovermode='closest',
-                    font=dict(family='Courier New, monospace', size=32, color='#7f7f7f')
+                    font=dict(family='Courier New, monospace', size=16, color='#7f7f7f')
                 )
             })
 

@@ -50,7 +50,7 @@ class Main():
 
         for _, row in self.kernels.iterrows():
             time = row['time']
-            if row['label'].startswith("start_"):
+            if "start_" in row['label']:
                 color = 'rgb(50, 171, 96)'
             else:
                 color = 'rgb(220, 20, 60)'
@@ -63,7 +63,7 @@ class Main():
                 'y0': 0,
                 'y1': 1,
                 'line': {
-                        'color': color,
+                        'color':color,
                         'width': 4,
                         'dash': 'dashdot',
                 },
@@ -86,17 +86,17 @@ class Main():
                             'size': 15,
                             'line': {'width': 0.5, 'color': 'white'}
                         },
-                        name=label
+                        name=label,
+                        hoverinfo='x+y+z+text'
                     ) for index, label in enumerate(self.labels)
                 ],
                 'layout': go.Layout(
                     xaxis={'title': 'Time'},
                     yaxis={'title': 'X-id'},
-                    margin={'l': 120, 'b': 90, 't': 70, 'r': 10},
                     shapes=self.kernels_lines,
                     showlegend=True,
                     hovermode='closest',
-                    font=dict(family='Courier New, monospace', size=32, color='#7f7f7f')
+                    font=dict(family='Courier New, monospace', size=16, color='#7f7f7f')
                 )
             })
         return layout

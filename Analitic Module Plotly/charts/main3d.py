@@ -47,7 +47,7 @@ class Main3d():
     def get_content(self,):
         layout = dcc.Graph(
             id='main_graph' + str(uuid.uuid4()),
-            style={"height": "78vh"},
+            style={"height": "82vh"},
             figure={
                 'data': [
                     go.Scatter3d(
@@ -60,16 +60,16 @@ class Main3d():
                         marker={
                             'size': 5
                         },
-                        name=label
+                        name=label,
+                        hoverinfo='x+y+z+text'
                     ) for index, label in enumerate(self.labels)
                 ],
                 'layout': go.Layout(scene = dict(xaxis = dict(title='Time'),
                     yaxis = dict(title='X-id'),
                     zaxis = dict(title='Y-id')),
-                    margin={'l': 180, 'b': 150, 't': 150, 'r': 10},
                     showlegend=True,
                     hovermode='closest',
-                    font=dict(family='Courier New, monospace', size=22, color='#7f7f7f')
+                    font=dict(family='Courier New, monospace', size=16, color='#7f7f7f')
                 )
             })
         return layout

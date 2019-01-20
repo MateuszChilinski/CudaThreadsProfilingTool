@@ -25,7 +25,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
     html.Div([
-        html.Span("CUDA Threads Profiling Tool Analitic Module v2", className='app-title', style={"font-size": 28})]),
+        html.Span("CUDA Threads Profiling Tool Analitic Module v2", className='app-title')]),
 
     dcc.Upload(
         id='upload-csv',
@@ -41,7 +41,6 @@ app.layout = html.Div([
             'borderStyle': 'dashed',
             'borderRadius': '5px',
             'textAlign': 'center',
-            "font-size": 28
         },
         # Allow multiple files to be uploaded
         multiple=True
@@ -51,7 +50,7 @@ app.layout = html.Div([
     html.Div([
         dcc.Tabs(
             id="tabs",
-            style={"height": "80", "verticalAlign": "middle", "font-size": 28},
+            style={"height": "60", "verticalAlign": "middle"},
             children=[
                 dcc.Tab(label='Main', value="main-tab"),
                 dcc.Tab(label="Main chart 3d", value="main3d-tab"),
@@ -65,7 +64,7 @@ app.layout = html.Div([
     ),
     html.Div(id='intermediate-content-div', style={"display": "none"}),
     html.Div(id="tab-content",
-             children=[dcc.Graph()], style={"margin": "20px"})
+             children=[dcc.Graph()])
 ])
 
 app_state = AppState()
