@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <algorithm>
-#include "../../Library/CudaThreadProfiler.cuh"
+#include "../../Library/ParallelThreadProfiler.cuh"
 
 using namespace std;
 
@@ -524,9 +524,9 @@ PairVector GPUFindPairs(Sequence<K> * h_sequence)
 	CUDAErrorChecker(cudaMalloc(&d_idata, inputSize));
 	CUDAErrorChecker(cudaMemcpy(d_idata, h_sequence, inputSize, cudaMemcpyHostToDevice));
 
-	CudaThreadProfiler::InitialiseProfiling();
-	CudaThreadProfiler::CreateLabel("start",0);
-	CudaThreadProfiler::CreateLabel("end",1);
+	ParallelThreadProfiler::InitialiseProfiling();
+	ParallelThreadProfiler::CreateLabel("start",0);
+	ParallelThreadProfiler::CreateLabel("end",1);
 
 	int counter =0;
 	for (int i = N - 1; i > 0; i -= seqPerCall)
@@ -534,20 +534,20 @@ PairVector GPUFindPairs(Sequence<K> * h_sequence)
 
 		if (i >= threadsPerBlock)
 		{
-			CudaThreadProfiler::InitialiseKernelProfiling("kernel1_"+counter, (threadsPerBlock*(i / threadsPerBlock)), 2);
+			ParallelThreadProfiler::InitialiseKernelProfiling("kernel1_"+counter, (threadsPerBlock*(i / threadsPerBlock)), 2);
 			GPUHamming << < i / threadsPerBlock, threadsPerBlock >> > (d_idata, d_result.deviceArray, i, 0);
 			checkCudaErrors(cudaDeviceSynchronize());
 			checkCudaErrors(cudaPeekAtLastError());
-			CudaThreadProfiler::SaveResults();
+			ParallelThreadProfiler::SaveResults();
 		}
 
 		if (i % threadsPerBlock > 0)
 		{
-			CudaThreadProfiler::InitialiseKernelProfiling("kernel2_"+counter,i % threadsPerBlock, 2);
+			ParallelThreadProfiler::InitialiseKernelProfiling("kernel2_"+counter,i % threadsPerBlock, 2);
 			GPUHamming << < 1, i % threadsPerBlock >> > (d_idata, d_result.deviceArray, i, i - (i % threadsPerBlock));
 			checkCudaErrors(cudaDeviceSynchronize());
 			checkCudaErrors(cudaPeekAtLastError());
-			CudaThreadProfiler::SaveResults();
+			ParallelThreadProfiler::SaveResults();
 		}
 	}
 

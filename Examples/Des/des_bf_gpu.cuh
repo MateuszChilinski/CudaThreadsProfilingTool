@@ -11,7 +11,7 @@
 #include "des_constant_cpu.cuh"
 #include "des_constant_gpu.cuh"
 #include "des_utils.cuh"
-#include "../../Library/CudaThreadProfiler.cuh"
+#include "../../Library/ParallelThreadProfiler.cuh"
 
 __global__ void gpu_brute_force(char *key_alphabet, int64_t key_alphabet_length, int key_length, char *message_alphabet, int64_t message_alphabet_length,
     int message_length, uint64_t ciphertext, uint64_t *message_result, uint64_t *key_result, bool *found_key);
@@ -83,9 +83,9 @@ __host__ void des_brute_force_gpu(char *key_alphabet, int key_length, char *mess
     int block=2;
     int thread =1024;
 
-    CudaThreadProfiler::CreateLabel("start", 0);
-	CudaThreadProfiler::CreateLabel("end", 1);
-	CudaThreadProfiler::InitialiseKernelProfiling("des", (block*thread), 2);
+    ParallelThreadProfiler::CreateLabel("start", 0);
+	ParallelThreadProfiler::CreateLabel("end", 1);
+	ParallelThreadProfiler::InitialiseKernelProfiling("des", (block*thread), 2);
     gpu_brute_force<<<block,thread>>>(
         gpu_key_alphabet, 
         key_alphabet_length, 
@@ -99,7 +99,7 @@ __host__ void des_brute_force_gpu(char *key_alphabet, int key_length, char *mess
         found_key);
 
     cudaDeviceSynchronize();
-	CudaThreadProfiler::SaveResults();
+	ParallelThreadProfiler::SaveResults();
   
     cudaEventCreate(&stop);
     cudaEventRecord(stop,0);

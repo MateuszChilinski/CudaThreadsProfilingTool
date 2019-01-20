@@ -1,7 +1,7 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include "cuda.h"
-#include "../../Library/CudaThreadProfiler.cuh"
+#include "../../Library/ParallelThreadProfiler.cuh"
 
 __device__ __host__
 uint64_t generate_key(uint64_t number)
@@ -101,11 +101,11 @@ void run_kernel(int blocks, int threads, uint64_t cypher, uint64_t key, int key_
 
 	std::cout << "Kernel starts!\n";
 	gpuErrchk(cudaEventRecord(start, 0));
-	CudaThreadProfiler::CreateLabel("start",0);
-	CudaThreadProfiler::CreateLabel("end",1);
-	CudaThreadProfiler::InitialiseKernelProfiling("des",(blocks*threads),2);
+	ParallelThreadProfiler::CreateLabel("start",0);
+	ParallelThreadProfiler::CreateLabel("end",1);
+	ParallelThreadProfiler::InitialiseKernelProfiling("des",(blocks*threads),2);
 	des_kernel <<<blocks, threads>> > (cypher, key_length, start_char, alphabet_size, d_value, d_found);
-	CudaThreadProfiler::SaveResults();	
+	ParallelThreadProfiler::SaveResults();	
 	gpuErrchk(cudaPeekAtLastError());	// ivalid launch argument check
 	gpuErrchk(cudaDeviceSynchronize());	// kernel execution error
 

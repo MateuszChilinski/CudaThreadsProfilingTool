@@ -24,7 +24,7 @@ __device__ void sleep(clock_value_t sleep_cycles)
 	clock_value_t cycles_elapsed;
 	do { cycles_elapsed = clock64() - start; } while (cycles_elapsed < sleep_cycles);
 }
-__global__ void GPUDelays(long long int* global_now)
+__global__ void GPUDelays()
 {
 	RegisterTimeMarker(0); 
 	sleep(5000000);
@@ -36,13 +36,11 @@ int main()
 	ParallelThreadProfiler::InitialiseProfiling();
 	cout << endl << "GPU computations started..." << endl;
 	srand(time(NULL));
-	long long int *rd;
-	cudaMalloc((void **)&rd, sizeof(long long int));
 
 	ParallelThreadProfiler::CreateLabel("start", 0);
 	ParallelThreadProfiler::CreateLabel("end", 1);
 	ParallelThreadProfiler::InitialiseKernelProfiling("delay_kernel", 32*512, 2);
-	GPUDelays <<<32, 512>> > (rd);
+	GPUDelays <<<32, 512>>> ();
 	ParallelThreadProfiler::SaveResults();
 
 	cudaStatus = cudaDeviceReset();

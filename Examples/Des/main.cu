@@ -10,7 +10,7 @@
 #include "des_bf_cpu.cuh"
 #include "des_bf_gpu.cuh"
 
-#include "../../Library/CudaThreadProfiler.cuh"
+#include "../../Library/ParallelThreadProfiler.cuh"
 
 int main(int argc, char** argv)
 {
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
     printf("\n");
 
 
-	CudaThreadProfiler::InitialiseProfiling();
+	ParallelThreadProfiler::InitialiseProfiling();
     if (useCpu)
     {
         des_brute_force_cpu(key_alphabet, key_length, message_alphabet, message_length, ciphertext);
