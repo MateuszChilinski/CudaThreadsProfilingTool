@@ -1,0 +1,16 @@
+Our thesis helps in diagnosing and optimising algorithms that are run by Nvidia graphics cards. It consists of two modules:
+
+- the measurement module that works along the algorithm to take measurements
+- the analytical module, which allows the analysis of the results
+
+Our thesis focuses on the diagnostics of the performance of single threads on Nvidia graphics cards, thanks to which it is easier to optimise algorithms in the case of branching or any other negative effects associated with Nvidia architecture. Despite our measurement module being dedicated to the Nvidia architecture, it can be easily transformed into any other SIMD (Single Instruction Multiple Data) architecture. The analytical module is universal, hence the choice of Python - it is a portable tool between all the systems and easy to install and use.
+
+In our work, we also included several examples of algorithms with analysis that show how the tool can be used for diagnostic purposes.
+
+The main task we have done was to create already mentioned modules in a way that makes it as easy as possible to use and integrate with existing algorithms. Additionaly, thanks to the analysis of the examples we created, we have shown the branching phenomenon and the overflow of shared memory on Nvidia's graphics cards.
+
+The system is a library that the programmer uses in his work, and an analytical module that is independent and written in Python. The repository also contains usage examples.
+
+Library, which we also call the measurement module, must be added to the project. The computer on which we compile and run the project must meet the Nvidia requirements - the solution presented in this work requires a Nvidia graphics card that has CUDA along with CC greater than 3.0. Of course the measurement module can be transferred to GPUs made by other manufacturers, as long as they allow monitoring the work of a particular thread.
+
+Keywords: Nvidia, cuda, gpu, branching, optimalisation, diagnostics, algorithms
