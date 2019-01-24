@@ -1,0 +1,16 @@
+	Nasza praca inżynierska pomaga zdiagnozować jak i zoptymalizować algorytmy, których platformą docelową są procesory graficzne firmy Nvidia. Składa się ona z dwóch modułów: 
+
+- modułu pomiarowego, który działa wraz z algorytmem w celu wykonania pomiarów
+- modułu analitycznego, który pozwala na analizę otrzymanych rezultatów w sposób łatwy i czytelny
+
+Nasza praca koncentruje się na diagnostyce pojedynczych wątków wykonywanych na procesorach graficznych firmy Nvidia, dzięki czemu dużo łatwiej zoptymalizować konkretny algorytm w przypadku pojawienia się branchingu lub innych negatywnych efektów związanych z architekturą Nvidii. O ile moduł pomiarowy jest dedykowany rozwiązaniu Nvidii, to można go łatwo przepisać na dowolną inną architekturę SIMD (ang. Single Instruction Multiple Data). Moduł analityczny jest uniwersalny, stąd też wybór Pythona - jest to narzędzie przenośne między praktycznie wszystkimi systemami i łatwe w instalacji, jak i obsłudze.
+
+W naszej pracy zawarliśmy także kilka przykładowych algorytmów wraz z kompleksową analizą, które pokazują, w jaki sposób narzędzie może być wykorzystywane w celach diagnostycznych.
+
+Głównym zadaniem, które wykonaliśmy jest stworzenie dwóch wyżej wymienionych modułów w sposób umożliwiający jak najłatwiejsze użycie i integrację z istniejącymi algorytmami. Dodatkowo, dzięki analizie stworzonych przez nas przykładów, pokazaliśmy zjawisko branchingu jak i przepełnienia pamięci wspólnej na procesorach graficznych firmy Nvidia.
+
+System ma postać biblioteki, którą programista wykorzystuje w swojej pracy, oraz modułu analitycznego, który jest niezależny i napisany w języku Python. Repozytorium zawiera także przykłady użycia systemu.
+
+W przypadku biblioteki, nazywanej przez nas także modułem pomiarowym, musi zostać ona dodana do projektu. Dodatkowo, komputer, na którym kompilujemy i uruchamiamy projekt, musi spełniać wymagania stawiane przez Nvidię - rozwiązanie prezentowane w tej pracy wymaga karty graficznej Nvidii, która posiada CUDA, jak i CC większego niż 3.0. Oczywiście schemat w przypadku modułu pomiarowego może zostać przeniesiony na procesory graficzne innych producentów, o ile pozwalają na monitorowanie pracy poszczególnego wątku.
+
+Słowa kluczowe: Nvidia, cuda, gpu, rozgałęzienie wątków, optymalizacja, diagnostyka, algorytmy
